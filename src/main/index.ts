@@ -11,6 +11,8 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
+    center: true,
+    title: 'Voice Quiz Master',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
