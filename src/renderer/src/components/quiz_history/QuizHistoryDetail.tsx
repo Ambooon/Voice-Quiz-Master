@@ -15,7 +15,7 @@ export default function QuizHistoryDetail() {
     navigate(-1)
   }
   return (
-    <section className="p-4 relative">
+    <section className="p-4">
       <button onClick={handleBack}>
         <IoMdArrowRoundBack size={28} />
       </button>

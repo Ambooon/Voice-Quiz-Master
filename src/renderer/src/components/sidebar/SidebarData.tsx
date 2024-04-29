@@ -9,12 +9,12 @@ export const SidebarData = [
     icon: <MdDashboard />
   },
   {
-    title: 'Q&A Management',
+    title: 'Questions & Answer',
     path: '/qa-management',
     icon: <GoTasklist />
   },
   {
-    title: 'Participants Management',
+    title: 'Participants',
     path: '/participant-management',
     icon: <FaPeopleGroup />
   },
