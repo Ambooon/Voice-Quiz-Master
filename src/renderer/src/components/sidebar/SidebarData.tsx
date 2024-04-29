@@ -14,7 +14,7 @@ export const SidebarData = [
     icon: <GoTasklist />
   },
   {
-    title: 'Participant Management',
+    title: 'Participants Management',
     path: '/participant-management',
     icon: <FaPeopleGroup />
   },

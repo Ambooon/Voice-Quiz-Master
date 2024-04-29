@@ -1,12 +1,14 @@
 import { QuizHistoryData } from './QuizHistoryData'
-import QuizHistoryItem from './QuizHistoryItem'
+import { FaFileExport } from 'react-icons/fa'
+import { SlOptionsVertical } from 'react-icons/sl'
+import { useNavigate } from 'react-router-dom'
 
 export default function QuizHistory() {
   return (
-    <section className="p-2">
+    <section className="p-4">
       <div className="w-full flex justify-end my-2">
         <input
-          className="py-1 px-2 border-2 rounded-md border-slate-700"
+          className="py-1 px-2 border rounded-md border-slate-700"
           type="search"
           placeholder="Search quiz history"
         />
@@ -28,5 +30,37 @@ export default function QuizHistory() {
         </ul>
       </div>
     </section>
+  )
+}
+
+type QuizHistoryItemProp = {
+  id: number
+  title: string
+  date: string //year-month-day 2002-08-29
+}
+
+function QuizHistoryItem(props: QuizHistoryItemProp) {
+  const navigate = useNavigate()
+  function handleClick() {
+    navigate(`/quiz-history/${props.id}`)
+  }
+  return (
+    <div
+      className="flex justify-between items-center p-4 rounded-lg  shadow-md hover:cursor-pointer hover:bg-myBlue-1 duration-100 ease-in-out hover:text-white"
+      onClick={handleClick}
+    >
+      <p className="text-2xl font-semibold">{props.title}</p>
+      <p>
+        <time dateTime={props.date}>{props.date}</time>
+      </p>
+      <div className="flex gap-4">
+        <button>
+          <FaFileExport />
+        </button>
+        <button>
+          <SlOptionsVertical />
+        </button>
+      </div>
+    </div>
   )
 }
