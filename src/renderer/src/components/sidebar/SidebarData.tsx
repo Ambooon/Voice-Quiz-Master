@@ -1,22 +1,22 @@
-import { FaPeopleGroup } from 'react-icons/fa6'
 import { GoTasklist } from 'react-icons/go'
 import { MdDashboard, MdOutlineHistoryEdu } from 'react-icons/md'
+import { SiMicrosoftacademic } from 'react-icons/si'
 
 export const SidebarData = [
   {
-    title: 'Home',
+    title: 'Quiz Room',
     path: '/',
     icon: <MdDashboard />
   },
   {
-    title: 'Questions & Answer',
-    path: '/qa-management',
-    icon: <GoTasklist />
+    title: 'Quiz Management',
+    path: '/quiz-management',
+    icon: <SiMicrosoftacademic />
   },
   {
-    title: 'Participants',
-    path: '/participant-management',
-    icon: <FaPeopleGroup />
+    title: 'Questions & Answer Set',
+    path: '/qa-management',
+    icon: <GoTasklist />
   },
   {
     title: 'Quiz History',

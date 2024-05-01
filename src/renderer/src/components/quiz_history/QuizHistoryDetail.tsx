@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { QuizHistoryData } from './QuizHistoryData'
 import { FaFileExport } from 'react-icons/fa'
 
-const tabs = ['Questions', 'Participants']
+const tabs = ['Participants', 'Questions', 'Score Sheet']
 
 export default function QuizHistoryDetail() {
   const { id } = useParams()
@@ -58,7 +58,7 @@ export default function QuizHistoryDetail() {
             })}
           </ul>
 
-          {activeTab === 0 && (
+          {activeTab === 1 && (
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 mt-4">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-100">
@@ -138,7 +138,7 @@ export default function QuizHistoryDetail() {
             </div>
           )}
 
-          {activeTab === 1 && (
+          {activeTab === 0 && (
             <div className="relative mt-4 overflow-x-auto shadow-md sm:rounded-lg max-h-96">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-100">

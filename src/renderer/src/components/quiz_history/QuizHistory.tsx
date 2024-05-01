@@ -1,7 +1,7 @@
-import { QuizHistoryData } from './QuizHistoryData'
 import { FaFileExport } from 'react-icons/fa'
 import { SlOptionsVertical } from 'react-icons/sl'
 import { useNavigate } from 'react-router-dom'
+import { QuizHistoryData } from './QuizHistoryData'
 
 export default function QuizHistory() {
   return (

@@ -21,9 +21,10 @@ export default function QAItemDetail() {
         <>
           <div className="flex justify-between items-end">
             <div>
-              <div className="flex justify-between items-baseline w-fit gap-8 mb-2">
+              <div className="flex justify-between items-baseline w-fit gap-4 mb-2">
                 <h3 className="font-semibold text-3xl">{data.title}</h3>
-                <p className="font-light text-sm text-gray-600">{data.date}</p>
+                <p className="font-light text-sm text-gray-600 ml-2">{data.date}</p>
+                <button className="px-3 py-1 rounded-lg bg-myBlue-1 text-white">Edit</button>
               </div>
               <p className="mb-8 text-gray-800 max-w-xl">{data.description}</p>
             </div>

@@ -8,7 +8,7 @@ export default function QAManagement() {
   return (
     <section className="p-4">
       <div className="w-full flex justify-between my-2">
-        <div className="flex justify-between items-center rounded-md bg-myBlue-1 pl-1 py-2 pr-3 text-white font-medium hover:cursor-pointer hover:bg-myBlue-2">
+        <div className="flex justify-between items-center rounded-md bg-myBlue-1 pl-1 py-1 pr-3 text-white font-medium hover:cursor-pointer hover:bg-myBlue-2">
           <IoIosAdd size={24} />
           Add Set
         </div>
