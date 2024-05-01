@@ -1,5 +1,5 @@
+import { FaPlay } from 'react-icons/fa'
 import { IoIosAdd } from 'react-icons/io'
-import { FaPlay } from "react-icons/fa6";
 
 export default function QuizRoom() {
   return (
