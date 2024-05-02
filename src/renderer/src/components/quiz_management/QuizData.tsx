@@ -43,8 +43,7 @@ export const QuizData = [
     id: 2,
     title: 'Mathinik Senior High',
     date: '2024-02-29',
-    description:
-      'Quiz Bee for Computer Science Students. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Suscipit, molestiae!',
+    description: 'Quiz Bee for Computer Science Students.',
     questions: [
       {
         id: 1,

@@ -28,6 +28,7 @@
     "express": "^4.19.2",
     "react-icons": "^5.1.0",
     "react-router-dom": "^6.23.0",
+    "sqlite-electron": "^3.0.5",
     "ws": "^8.16.0"
   },
   "devDependencies": {
