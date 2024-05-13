@@ -22,10 +22,10 @@ export const QuizData = [
         points: 1
       },
       {
-        id: 2,
-        question: 'What is 2+2?',
-        answer: '4',
-        choices: ['1', '2', '3', '4'],
+        id: 3,
+        question: 'What is 3+3?',
+        answer: '6',
+        choices: ['6', '2', '3', '4'],
         difficulty: 'easy',
         points: 1
       }
@@ -33,10 +33,8 @@ export const QuizData = [
     participants: [
       { id: 1, name: 'Francis Angoring', description: 'BSCS 4-4' },
       { id: 2, name: 'David Calumba', description: 'BSCS 4-4' },
-      { id: 1, name: 'Jezter Landicho', description: 'BSCS 4-4' },
-      { id: 2, name: 'Danica Estrada', description: 'BSCS 4-4' },
-      { id: 1, name: 'Francis Angoring', description: 'BSCS 4-4' },
-      { id: 2, name: 'David Calumba', description: 'BSCS 4-4' }
+      { id: 3, name: 'Jezter Landicho', description: 'BSCS 4-4' },
+      { id: 4, name: 'Danica Estrada', description: 'BSCS 4-4' }
     ]
   },
   {
@@ -62,7 +60,7 @@ export const QuizData = [
         points: 1
       },
       {
-        id: 2,
+        id: 3,
         question: 'What is 2+2?',
         answer: '4',
         difficulty: 'easy',
@@ -72,10 +70,8 @@ export const QuizData = [
     participants: [
       { id: 1, name: 'Francis Angoring', description: 'BSCS 4-4' },
       { id: 2, name: 'David Calumba', description: 'BSCS 4-4' },
-      { id: 1, name: 'Jezter Landicho', description: 'BSCS 4-4' },
-      { id: 2, name: 'Danica Estrada', description: 'BSCS 4-4' },
-      { id: 1, name: 'Francis Angoring', description: 'BSCS 4-4' },
-      { id: 2, name: 'David Calumba', description: 'BSCS 4-4' }
+      { id: 3, name: 'Jezter Landicho', description: 'BSCS 4-4' },
+      { id: 4, name: 'Danica Estrada', description: 'BSCS 4-4' }
     ]
   }
 ]
