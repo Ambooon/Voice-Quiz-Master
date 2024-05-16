@@ -14,11 +14,6 @@ export const SidebarData = [
     icon: <SiMicrosoftacademic />
   },
   {
-    title: 'Questions & Answer Set',
-    path: '/qa-management',
-    icon: <GoTasklist />
-  },
-  {
     title: 'Quiz History',
     path: '/quiz-history',
     icon: <MdOutlineHistoryEdu />

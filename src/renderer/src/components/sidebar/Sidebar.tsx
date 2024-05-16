@@ -1,6 +1,6 @@
+import { IoIosSettings } from 'react-icons/io'
 import { NavLink } from 'react-router-dom'
 import { SidebarData } from './SidebarData'
-import { SlOptionsVertical } from 'react-icons/sl'
 
 export default function Sidebar() {
   return (
@@ -24,9 +24,10 @@ export default function Sidebar() {
       </div>
 
       <div className="flex justify-between items-center">
-        <div className="w-8 h-8 rounded-full bg-slate-100"></div>
-        <p>Username</p>
-        <SlOptionsVertical />
+        <p>Hello, Username</p>
+        <NavLink to={'/profile'}>
+          <IoIosSettings />
+        </NavLink>
       </div>
     </nav>
   )
