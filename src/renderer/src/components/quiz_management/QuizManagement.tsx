@@ -2,8 +2,11 @@ import { FaFileExport } from 'react-icons/fa'
 import { SlOptionsVertical } from 'react-icons/sl'
 import { useNavigate } from 'react-router-dom'
 import { QuizData } from './QuizData'
+import { useState } from 'react'
 
 export default function QuizManagement() {
+  const [quizData, setQuizData] = useState(QuizData)
+
   return (
     <section className="p-4">
       <div className="w-full flex justify-end my-2">
@@ -21,7 +24,7 @@ export default function QuizManagement() {
       </div>
       <div>
         <ul className="flex flex-col gap-y-4">
-          {QuizData.map((data) => {
+          {quizData.map((data) => {
             return (
               <li key={data.id}>
                 <QuizItem
