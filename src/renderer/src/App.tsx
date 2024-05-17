@@ -15,6 +15,7 @@ import QuizManagementLayout from './components/quiz_management/QuizManagementLay
 import QuizRoom from './components/quiz_room/QuizRoom'
 import QuizRoomMain from './components/quiz_room/QuizRoomNew'
 import PrivateRoutes from './components/utils/PrivateRoutes'
+import { QuizRoomLayout } from './components/pages/QuizRoomLayout'
 
 function App() {
   return (
@@ -23,10 +24,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route element={<PrivateRoutes />}>
+          <Route path="/quiz-room/:id" element={<QuizRoomLayout />}>
+            <Route index element={<QuizRoomMain />} />
+          </Route>
           <Route path="/" element={<PageLayout />}>
             <Route path="/profile" element={<ProfilePage />} />
             <Route index element={<QuizRoom />} />
-            <Route path="/quiz-room/:id" element={<QuizRoomMain />} />
             <Route path="/quiz-management" element={<QuizManagementLayout />}>
               <Route index element={<QuizManagement />} />
               <Route path="/quiz-management/:id" element={<QuizItemDetail />} />
