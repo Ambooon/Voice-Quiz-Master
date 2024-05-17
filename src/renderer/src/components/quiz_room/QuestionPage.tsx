@@ -1,18 +1,34 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { FaPlay } from 'react-icons/fa'
+import buzzerSFX from '../../assets/sounds/BuzzerSFX.mp3'
 
 type QuestionPageProp = {
-  data: {
-    question: string
-    answer: string
-    choices?: string[]
-  }
+  data:
+    | {
+        question: string
+        answer: string
+        difficulty: string
+        choices?: string[]
+      }
+    | undefined
+  settings: {
+    difficulty: string
+    points: number
+    time: number
+  }[]
 }
 
 const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
   const [isAnswer, setIsAnswer] = useState(false)
   const [isShowAnswer, setIsShowAnswer] = useState(false)
   const Ref = useRef(null)
-  const [timer, setTimer] = useState('00:00:00')
+  const [timer, setTimer] = useState('00:00')
+  const _buzzerSFX = new Audio(buzzerSFX)
+  const [timerWidth, setTimerWidth] = useState(100)
+
+  const settingsRef = useRef()
+  const minutesRef = useRef<number | undefined>()
+  const secondsRef = useRef<number | undefined>()
 
   const getTimeRemaining = (e) => {
     const total = Date.parse(e) - Date.parse(new Date())
@@ -31,21 +47,20 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
     const { total, hours, minutes, seconds } = getTimeRemaining(e)
     if (total >= 0) {
       setTimer(
-        (hours > 9 ? hours : '0' + hours) +
-          ':' +
-          (minutes > 9 ? minutes : '0' + minutes) +
-          ':' +
-          (seconds > 9 ? seconds : '0' + seconds)
+        (minutes > 9 ? minutes : '0' + minutes) + ':' + (seconds > 9 ? seconds : '0' + seconds)
       )
+      setTimerWidth((total / (settingsRef.current.time * 1000)) * 100)
+      // console.log(total)
     } else {
       if (Ref.current) clearInterval(Ref.current)
       setIsAnswer(true)
+      _buzzerSFX.play()
     }
   }
 
   const clearTimer = (e) => {
     // change duration here
-    setTimer('00:00:05')
+    setTimer(`${minutesRef.current}:${secondsRef.current}`)
     if (Ref.current) clearInterval(Ref.current)
     const id = setInterval(() => {
       startTimer(e)
@@ -56,13 +71,19 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
   const getDeadTime = () => {
     const deadline = new Date()
     // change duration here
-    deadline.setSeconds(deadline.getSeconds() + 5)
+    deadline.setSeconds(deadline.getSeconds() + settingsRef.current.time)
     return deadline
   }
 
   useEffect(() => {
     // change duration here
-    setTimer('00:00:05')
+    settingsRef.current = props.settings.find(
+      (setting) => setting.difficulty === props.data.difficulty
+    )
+    minutesRef.current = Math.floor(settingsRef.current?.time / 60)
+    secondsRef.current = settingsRef.current?.time - minutesRef.current * 60
+
+    setTimer(`${minutesRef.current}:${secondsRef.current}`)
   }, [])
 
   function start() {
@@ -73,19 +94,29 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
     return {
       start,
       showAnswer: () => {
-        setIsShowAnswer(true)
+        if (isAnswer) {
+          setIsShowAnswer(true)
+        }
       }
     }
   })
 
   return (
-    <div className="p-8 h-screen w-full">
+    <div className="p-4 h-full w-full">
       {!isAnswer ? (
         <>
-          <p className="text-center font-bold text-2xl mb-2">{timer}</p>
+          <div className="flex justify-center items-center gap-4">
+            <p className="text-center font-bold text-2xl mb-2">{timer}</p>
+            <button className="text-myBlue-1 hover:text-myBlue-2" onClick={() => start()}>
+              <FaPlay />
+            </button>
+          </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto mb-8">
-            <div className={'bg-blue-600 h-2.5 rounded-full'}></div>
-            {/* <div className="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div> */}
+            {/* <div className={'bg-blue-600 h-2.5 rounded-full'}></div> */}
+            <div
+              className="bg-blue-600 h-2.5 rounded-full"
+              style={{ width: `${timerWidth}%` }}
+            ></div>
           </div>
           <h1 className="font-bold text-4xl text-center mb-12">{props.data.question}</h1>
           <div>
@@ -97,10 +128,18 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
         </>
       ) : (
         <>
-          <div className="w-full h-full flex justify-center items-center text-center">
+          <div className="w-full my-auto flex justify-center items-center text-center">
             <div>
-              <h2 className="text-2xl font-medium">Answer is:</h2>
-              <h1 className="text-6xl font-bold">{isShowAnswer && props.data.answer}</h1>
+              <div className="flex justify-center items-center gap-4">
+                <h2 className="text-2xl font-medium">Show Answer:</h2>
+                <button
+                  className="text-myBlue-1 hover:text-myBlue-2"
+                  onClick={() => setIsShowAnswer(true)}
+                >
+                  <FaPlay />
+                </button>
+              </div>
+              <h1 className="text-8xl font-bold">{isShowAnswer && props.data.answer}</h1>
             </div>
           </div>
         </>

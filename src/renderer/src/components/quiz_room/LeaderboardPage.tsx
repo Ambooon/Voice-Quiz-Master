@@ -8,7 +8,7 @@ type RankingPageProp = {
 }
 
 export default function LeaderboardPage(props: RankingPageProp) {
-  function compare(a, b) {
+  function compare(a: { score: number }, b: { score: number }) {
     if (a.score < b.score) {
       return 1
     }
@@ -19,10 +19,12 @@ export default function LeaderboardPage(props: RankingPageProp) {
   }
 
   props.data.sort(compare)
+  if (props.data[0].score === props.data[1].score) {
+    console.log('clincher time')
+  }
 
   return (
     <div className="max-h-screen">
-      <h1 className="mt-4 mb-12 mx-4 text-4xl font-bold text-center">Leaderboard</h1>
       <div className="max-w-sm mx-auto">
         {props.data.map((participant, index) => {
           return (

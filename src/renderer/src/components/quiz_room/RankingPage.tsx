@@ -9,8 +9,7 @@ type RankingPageProp = {
 
 export default function RankingPage(props: RankingPageProp) {
   return (
-    <div className="max-h-screen">
-      <h1 className="mt-4 mb-12 mx-4 text-4xl font-bold text-center">Ranking</h1>
+    <div className="max-h-full">
       <div className="max-w-sm mx-auto">
         {props.data.map((participant, index) => {
           return (
