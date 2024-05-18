@@ -20,6 +20,7 @@ export default function QuizItemDetail() {
   function handleBack(): void {
     navigate(-1)
   }
+
   function onSaveChanges() {
     // update the current state 'quizData' into the database
     return
@@ -557,10 +558,7 @@ function QuestionItem(props: QuestionItemProp) {
   return (
     <>
       <tr className="border-b">
-        <th
-          scope="row"
-          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex justify-between items-center"
-        >
+        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap ">
           {questionData.index}
           {/* <div className="flex flex-col justify-center items-center">
             <button onClick={() => props.onChangeOrder(props.index - 1, true, 'questions')}>

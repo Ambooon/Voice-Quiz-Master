@@ -1,34 +1,31 @@
-import { FaFileExport } from 'react-icons/fa'
-import { SlOptionsVertical } from 'react-icons/sl'
+import { useState } from 'react'
+import { MdDelete } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 import { QuizData } from './QuizData'
-import { useState } from 'react'
 
 export default function QuizManagement() {
   const [quizData, setQuizData] = useState(QuizData)
 
   return (
     <section className="p-4">
-      <div className="w-full flex justify-end my-2">
-        <input
-          className="py-1 px-2 border rounded-md border-slate-700"
-          type="search"
-          placeholder="Search quiz history"
-        />
+      <div className="w-full flex justify-end mt-2 mb-4">
+        <button className="px-4 py-2 rounded-lg bg-myBlue-1 text-white hover:bg-myBlue-2">
+          Create Quiz
+        </button>
       </div>
-      <div className="flex justify-between py-2 px-4">
-        <p>Title</p>
-        <p>Description</p>
-        <p>Date</p>
-        <p>Options</p>
+      <div className="grid grid-cols-9 justify-items-center items-center py-2 px-4 font-bold">
+        <p className="col-span-3">Title</p>
+        <p className="col-span-3">Description</p>
+        <p className="col-span-2">Date</p>
+        <p className="col-span-1">Options</p>
       </div>
       <div>
         <ul className="flex flex-col gap-y-4">
-          {quizData.map((data) => {
+          {quizData.map((data, index) => {
             return (
               <li key={data.id}>
                 <QuizItem
-                  key={data.id}
+                  key={index}
                   id={data.id}
                   title={data.title}
                   date={data.date}
@@ -57,20 +54,17 @@ function QuizItem(props: QuizItemProp) {
   }
   return (
     <div
-      className="flex justify-between items-center p-4 rounded-lg  shadow-md hover:cursor-pointer hover:bg-myBlue-1 duration-100 ease-in-out hover:text-white"
+      className="grid grid-cols-9 justify-items-center items-center p-4 rounded-lg  shadow-md hover:cursor-pointer hover:bg-myBlue-1 duration-100 ease-in-out hover:text-white"
       onClick={handleClick}
     >
-      <p className="text-2xl font-semibold">{props.title}</p>
-      <p>{props.description}</p>
-      <p>
+      <p className="text-2xl font-semibold col-span-3">{props.title}</p>
+      <p className="col-span-3">{props.description}</p>
+      <p className="col-span-2">
         <time dateTime={props.date}>{props.date}</time>
       </p>
-      <div className="flex gap-4">
+      <div className="col-span-1">
         <button>
-          <FaFileExport />
-        </button>
-        <button>
-          <SlOptionsVertical />
+          <MdDelete />
         </button>
       </div>
     </div>
