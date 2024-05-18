@@ -105,7 +105,7 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
     <div className="p-4 h-full w-full">
       {!isAnswer ? (
         <>
-          <div className="flex justify-center items-center gap-4">
+          <div className="flex justify-center items-center gap-4 ">
             <p className="text-center font-bold text-2xl mb-2">{timer}</p>
             <button className="text-myBlue-1 hover:text-myBlue-2" onClick={() => start()}>
               <FaPlay />
@@ -156,7 +156,7 @@ type ChoiceType = {
 
 function Choice(props: ChoiceType) {
   return (
-    <div className="bg-slate-50 shadow-sm rounded-sm max-w-lg p-4 mb-4 mx-auto">
+    <div className="bg-slate-100 shadow-sm rounded-sm max-w-lg p-4 mb-4 mx-auto text-center">
       <h2 className="font-semibold text-2xl">{props.text}</h2>
     </div>
   )

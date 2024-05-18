@@ -99,15 +99,20 @@ export default function QuizRoomMain() {
           if (
             transcript === 'begin quiz' ||
             transcript === 'begin please' ||
-            transcript === 'begin with'
+            transcript === 'begin with' ||
+            transcript === 'big increase'
           ) {
             setCurrentPage('question')
           } else if (transcript === 'stop quiz') {
+            setIsDone(true)
             navigate('/')
-            return
-          } else if (transcript === 'start timer') {
+          } else if (transcript === 'start timer' || transcript === 'add timer') {
             questionPageRef.current.start()
-          } else if (transcript === 'show answer' || transcript === 'no answer') {
+          } else if (
+            transcript === 'show answer' ||
+            transcript === 'no answer' ||
+            transcript === 'show and save'
+          ) {
             questionPageRef.current.showAnswer()
           } else if (
             transcript === 'begin scoring' ||
@@ -127,12 +132,17 @@ export default function QuizRoomMain() {
             setCurrentPage('clincher')
             setIsClincher(true)
             setCurrentQuestionIndex(0)
+          } else if (
+            transcript === 'finish quiz' ||
+            transcript === 'finish please' ||
+            transcript === 'finish with'
+          ) {
+            setCurrentPage('ranking')
+            setIsDone(true)
           }
-
           const command = transcript.match(/\b(\w+)\b/g)
           if (command[0] === 'participant' || command[0] === 'participants') {
-            // const id = parseInt(command[1])
-            let id
+            let id: number
             if (['want', 'plan', 'point', 'one'].includes(command[1])) {
               id = 1
             } else if (['to', 'too', 'two'].includes(command[1])) {
@@ -145,6 +155,8 @@ export default function QuizRoomMain() {
               id = 5
             } else if (['sex', 'six'].includes(command[1])) {
               id = 6
+            } else if (["haven't", 'seven'].includes(command[1])) {
+              id = 7
             } else if (['ate', 'eight'].includes(command[1])) {
               id = 8
             } else if (['dine', 'nine', 'mine', 'nine'].includes(command[1])) {
@@ -183,6 +195,7 @@ export default function QuizRoomMain() {
 
     return () => {
       if (!isDone && socket) {
+        console.log('closed')
         microphoneRef.current?.stop()
         clearInterval(keepAliveIntervalId.current)
         const closeMessage = JSON.stringify({ type: 'CloseStream' })
