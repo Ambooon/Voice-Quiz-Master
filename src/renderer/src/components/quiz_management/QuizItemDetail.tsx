@@ -290,12 +290,14 @@ export default function QuizItemDetail() {
               >
                 Save Changes
               </button>
-              <NavLink
-                to={`/quiz-room/${quizData?.id}`}
-                className="flex justify-between items-center gap-4 text-white rounded-lg bg-myBlue-1 px-6 py-2 hover:bg-myBlue-2"
-              >
-                Start Quiz <FaPlay size={16} />
-              </NavLink>
+              {id !== 'created' && (
+                <NavLink
+                  to={`/quiz-room/${quizData?.id}`}
+                  className="flex justify-between items-center gap-4 text-white rounded-lg bg-myBlue-1 px-6 py-2 hover:bg-myBlue-2"
+                >
+                  Start Quiz <FaPlay size={16} />
+                </NavLink>
+              )}
             </div>
           </div>
 
