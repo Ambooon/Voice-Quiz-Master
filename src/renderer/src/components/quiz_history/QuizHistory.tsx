@@ -1,8 +1,18 @@
+import { useEffect, useState } from 'react'
 import { MdDelete } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
-import { QuizData } from './QuizHistoryData'
 
 export default function QuizHistory() {
+  const [quizData, setQuizData] = useState()
+
+  useEffect(() => {
+    async function getQuizzes() {
+      // change the argument to current user
+      setQuizData(await window.api.getQuizzesHistory('Francis'))
+    }
+    getQuizzes()
+  }, [])
+
   return (
     <section className="p-4">
       <div className="grid grid-cols-7 justify-items-center items-center py-2 px-4 font-bold">
@@ -12,10 +22,15 @@ export default function QuizHistory() {
       </div>
       <div>
         <ul className="flex flex-col gap-y-4">
-          {QuizData.map((data, index) => {
+          {quizData?.map((data, index) => {
             return (
               <li key={index}>
-                <QuizHistoryItem key={data.id} id={data.id} title={data.title} date={data.date} />
+                <QuizHistoryItem
+                  key={crypto.randomUUID()}
+                  id={data.id}
+                  title={data.title}
+                  date={data.date}
+                />
               </li>
             )
           })}

@@ -1,21 +1,28 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FaFileExport } from 'react-icons/fa'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import { useNavigate, useParams } from 'react-router-dom'
-import { QuizData } from './QuizHistoryData'
 
-const tabs = ['Participants', 'Questions']
+const tabs = ['Participants', 'Questions', 'Clinchers', 'Settings']
 
 export default function QuizHistoryDetail() {
   const { id } = useParams()
-  const data = QuizData.find((item) => String(item.id) === id)
+  const [data, setData] = useState()
   const [activeTab, setActiveTab] = useState(0)
   const navigate = useNavigate()
   function handleBack(): void {
     navigate(-1)
   }
+
+  useEffect(() => {
+    async function getData() {
+      const result = await window.api.getQuizHistory(id)
+      setData(result)
+    }
+    getData()
+  }, [])
 
   function exportPDF() {
     const doc = new jsPDF()
@@ -28,15 +35,25 @@ export default function QuizHistoryDetail() {
       questions.push([...Object.values(question)].map((item) => String(item)))
     })
 
+    const clinchers: string[][] = []
+    data?.clincher.forEach((clinch) => {
+      clinchers.push([...Object.values(clinch)].map((item) => String(item)))
+    })
+
+    const settings: string[][] = []
+    data?.settings.forEach((setting) => {
+      settings.push([...Object.values(setting)].map((item) => String(item)))
+    })
+
     const text = [
-      `${data.title + ' ' + data.date}`,
-      data.description,
-      '',
-      'Settings',
-      `${data?.settings[0].difficulty.toUpperCase() + ': ' + data?.settings[0].points + ' points & ' + data?.settings[0].time + ' seconds'}`,
-      `${data?.settings[1].difficulty.toUpperCase() + ': ' + data?.settings[1].points + ' points & ' + data?.settings[1].time + ' seconds'}`,
-      `${data?.settings[2].difficulty.toUpperCase() + ': ' + data?.settings[2].points + ' points & ' + data?.settings[2].time + ' seconds'}`,
-      `${data?.settings[3].difficulty.toUpperCase() + ': ' + data?.settings[3].points + ' points & ' + data?.settings[3].time + ' seconds'}`
+      `${data.title + ' ' + '(' + data.date + ')'}`,
+      data.description
+      // '',
+      // 'Settings',
+      // `${data?.settings[0].difficulty.toUpperCase() + ': ' + data?.settings[0].points + ' points & ' + data?.settings[0].time + ' seconds'}`,
+      // `${data?.settings[1].difficulty.toUpperCase() + ': ' + data?.settings[1].points + ' points & ' + data?.settings[1].time + ' seconds'}`,
+      // `${data?.settings[2].difficulty.toUpperCase() + ': ' + data?.settings[2].points + ' points & ' + data?.settings[2].time + ' seconds'}`,
+      // `${data?.settings[3].difficulty.toUpperCase() + ': ' + data?.settings[3].points + ' points & ' + data?.settings[3].time + ' seconds'}`
     ]
 
     doc.text(text, 14, 10)
@@ -47,7 +64,14 @@ export default function QuizHistoryDetail() {
 
     let finalY = height + 15
 
-    console.log(finalY)
+    doc.text('Participants', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['No.', 'Name', 'Description', 'Score']],
+      body: participants
+    })
+
+    finalY = doc.lastAutoTable.finalY
     doc.text('Questions', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
@@ -56,11 +80,18 @@ export default function QuizHistoryDetail() {
     })
 
     finalY = doc.lastAutoTable.finalY
-    doc.text('Participants', 14, finalY + 15)
+    doc.text('Clincher Questions', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['No.', 'Name', 'Description', 'Score']],
-      body: participants
+      head: [['No.', 'Question', 'Answer', 'Choices', 'Difficulty']],
+      body: clinchers
+    })
+    finalY = doc.lastAutoTable.finalY
+    doc.text('Settings', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['Difficulty', 'Points', 'Time (Seconds)']],
+      body: settings
     })
 
     doc.save('test.pdf')
@@ -96,7 +127,7 @@ export default function QuizHistoryDetail() {
           <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
             {tabs.map((item, index) => {
               return (
-                <li key={index} className="me-2">
+                <li key={crypto.randomUUID()} className="me-2">
                   <button
                     aria-current="page"
                     className={
@@ -165,7 +196,7 @@ export default function QuizHistoryDetail() {
                 <tbody>
                   {data.questions.map((question, index) => (
                     <QuestionItem
-                      key={index}
+                      key={crypto.randomUUID()}
                       id={question.id}
                       index={index + 1}
                       question={question.question}
@@ -241,13 +272,101 @@ export default function QuizHistoryDetail() {
                 <tbody>
                   {data.participants.map((participant, index) => (
                     <ParticipantItem
-                      key={index}
+                      key={crypto.randomUUID()}
                       id={participant.id}
                       index={index + 1}
                       name={participant.name}
                       score={participant.score}
                       description={participant.description}
                     />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab === 2 && (
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 mb-8 mt-4">
+              <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      No.
+                      <button>
+                        <svg
+                          className="w-3 h-3 ms-1.5"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                        </svg>
+                      </button>
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Question
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Answer
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Choices
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      <div className="flex items-center">
+                        Difficulty
+                        <button>
+                          <svg
+                            className="w-3 h-3 ms-1.5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.clincher.map((question, index) => (
+                    <QuestionItem
+                      key={crypto.randomUUID()}
+                      id={question.id}
+                      index={index + 1}
+                      question={question.question}
+                      answer={question.answer}
+                      choices={question.choices}
+                      difficulty={question.difficulty}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab === 3 && (
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 mb-8 mt-4">
+              <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      Difficulty
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Points
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Time (Seconds)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.settings.map((setting) => (
+                    <SettingItem key={crypto.randomUUID()} data={setting} />
                   ))}
                 </tbody>
               </table>
@@ -300,5 +419,27 @@ function ParticipantItem(props: ParticipantItemProp) {
       <td className="px-6 py-4">{props.score}</td>
       <td className="px-6 py-4">{props.description ? props.description : '-'}</td>
     </tr>
+  )
+}
+
+type SettingItemProp = {
+  data: { difficulty: string; points: number; time: number }
+}
+
+function SettingItem(props: SettingItemProp) {
+  return (
+    <>
+      <tr className="border-b">
+        <th
+          scope="row"
+          className="capitalize px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex justify-between items-center"
+        >
+          {props.data.difficulty}
+        </th>
+
+        <td className="px-6 py-4 text-gray-800">{props.data.points}</td>
+        <td className="px-6 py-4 text-gray-800">{props.data.time}</td>
+      </tr>
+    </>
   )
 }
