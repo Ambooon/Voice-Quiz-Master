@@ -256,7 +256,9 @@ export default function QuizRoomMain() {
       <>
         <div className="w-full h-full flex justify-center items-center text-center">
           <div>
-            <h1 className="text-6xl font-bold mb-6">Begin Quiz</h1>
+            <h1 className="text-6xl font-bold mb-6">
+              {socket ? 'Begin Quiz' : 'Voice-activated loading...'}
+            </h1>
             <button
               className="px-8 py-4 rounded-full bg-myBlue-1 text-white hover:bg-myBlue-2"
               onClick={() => setCurrentPage('question')}

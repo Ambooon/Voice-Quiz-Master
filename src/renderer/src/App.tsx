@@ -33,11 +33,12 @@ function App() {
             <Route path="/quiz-management" element={<QuizManagementLayout />}>
               <Route index element={<QuizManagement />} />
               <Route path="/quiz-management/:id" element={<QuizItemDetail />} />
+              {/* <Route path="/quiz-management/create" element={<QuizItemDetail />} /> */}
             </Route>
-            <Route path="/qa-management" element={<QAManagementLayout />}>
+            {/* <Route path="/qa-management" element={<QAManagementLayout />}>
               <Route index element={<QAManagement />} />
               <Route path="/qa-management/:id" element={<QAItemDetail />} />
-            </Route>
+            </Route> */}
             <Route path="/quiz-history" element={<QuizHistoryLayout />}>
               <Route index element={<QuizHistory />} />
               <Route path="/quiz-history/:id" element={<QuizHistoryDetail />} />

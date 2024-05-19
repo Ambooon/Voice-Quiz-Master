@@ -4,6 +4,5 @@ out
 .DS_Store
 *.log*
 
-src/renderer/src/deepgramapi
 .env.example
 todo.txt

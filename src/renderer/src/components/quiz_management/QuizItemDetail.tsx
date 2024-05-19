@@ -1,29 +1,101 @@
-import { useState } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from 'react'
 import { FaCheck, FaPlay } from 'react-icons/fa'
 import { ImCross } from 'react-icons/im'
 import { IoIosAdd, IoMdArrowRoundBack } from 'react-icons/io'
 import { MdDelete, MdEdit } from 'react-icons/md'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
-import { QuizData } from './QuizData'
 
 const tabs = ['Questions', 'Participants', 'Clincher Questions', 'Settings']
+// type QuizDataType = {
+//   id: string
+//   title: string
+//   user: string
+//   date: string
+//   description: string
+//   settings: { difficulty: string; points: number; time: number }[]
+//   questions: {
+//     question: string
+//     answer: string
+//     difficulty: string
+//     choices?: string[]
+//   }
+//   participants: {
+//     name: string
+//     description?: string
+//   }
+//   clincher: {
+//     question: string
+//     answer: string
+//     difficulty: string
+//     choices?: string[]
+//   }
+// }[]
 
 export default function QuizItemDetail() {
   const { id } = useParams()
-  const data = QuizData.find((item) => String(item.id) === id)
 
   const [activeTab, setActiveTab] = useState(0)
-  const [quizData, setQuizData] = useState(data)
+  const [quizData, setQuizData] = useState<any[]>([])
   const [isEdit, setIsEdit] = useState(false)
 
   const navigate = useNavigate()
+  useEffect(() => {
+    async function getQuiz() {
+      setQuizData(await window.api.getQuiz(id))
+    }
+    if (id !== 'create') {
+      getQuiz()
+    } else {
+      const _data = {
+        title: 'Quiz Title',
+        // change this user later, get it from logged user
+        user: 'Francis',
+        date: new Date().toISOString().slice(0, 10),
+        description: 'Quiz Description',
+        settings: [
+          { difficulty: 'easy', points: 2, time: 15 },
+          { difficulty: 'average', points: 5, time: 25 },
+          { difficulty: 'hard', points: 10, time: 35 },
+          { difficulty: 'clincher', points: 15, time: 40 }
+        ],
+        questions: [
+          {
+            question: 'Question 1',
+            answer: 'Answer 1',
+            choices: ['Choice 1', 'Choice 2'],
+            difficulty: 'easy'
+          }
+        ],
+        clincher: [
+          {
+            question: 'Clincher 1',
+            answer: 'Answer 1',
+            choices: ['Choice 1', 'Choice 2'],
+            difficulty: 'clincher'
+          }
+        ],
+        participants: [{ name: 'Participant 1', description: 'Participant Description' }]
+      }
+      setQuizData(_data)
+    }
+  }, [])
+
   function handleBack(): void {
     navigate(-1)
   }
 
-  function onSaveChanges() {
+  async function onSaveChanges() {
     // update the current state 'quizData' into the database
-    return
+    if (id === 'create') {
+      const result = await window.api.createQuiz(quizData)
+      if (result) {
+        navigate('/quiz-management')
+      }
+    } else {
+      window.api.updateQuiz(id, quizData)
+      window.location.reload()
+    }
   }
 
   function onChangeOrder(_index: number, _isUp: boolean, _page: string) {
@@ -39,14 +111,14 @@ export default function QuizItemDetail() {
     // console.log(arr)
   }
 
-  function onChangeSettings(
-    data: { difficulty: string; points: number; time: number },
-    index: number
-  ) {
+  function onChangeSettings(data: { difficulty: string; points: number; time: number }) {
     if (quizData) {
-      const newSettings = quizData.settings.map((setting, _index) =>
-        _index === index ? data : setting
-      )
+      const newSettings = quizData.settings.map((setting) => {
+        if (setting.difficulty === data.difficulty) {
+          return data
+        }
+        return setting
+      })
       const newQuizData = { ...quizData, settings: newSettings }
       setQuizData(newQuizData)
     }
@@ -62,7 +134,6 @@ export default function QuizItemDetail() {
   function onAddQuestionQuiz() {
     if (quizData) {
       const newQuestion = {
-        id: quizData.questions.length + 1,
         question: 'Question',
         answer: 'Answer',
         choices: [],
@@ -74,10 +145,10 @@ export default function QuizItemDetail() {
     }
   }
 
-  function onChangeQuestionQuiz(data) {
+  function onChangeQuestionQuiz(data, index) {
     if (quizData) {
-      const newQuestions = quizData.questions.map((question) => {
-        if (question.id === data.id) {
+      const newQuestions = quizData.questions.map((question, i) => {
+        if (i === index) {
           return data
         }
         return question
@@ -87,10 +158,10 @@ export default function QuizItemDetail() {
     }
   }
 
-  function onDeleteQuestionQuiz(id) {
+  function onDeleteQuestionQuiz(index) {
     if (quizData) {
-      const newQuestions = quizData.questions.filter((question) => {
-        return question.id !== id
+      const newQuestions = quizData.questions.filter((question, i) => {
+        return i !== index
       })
       const newQuizData = { ...quizData, questions: newQuestions }
       setQuizData(newQuizData)
@@ -100,7 +171,6 @@ export default function QuizItemDetail() {
   function onAddClincherQuiz() {
     if (quizData) {
       const newClincher = {
-        id: quizData.clincher.length + 1,
         question: 'Question',
         answer: 'Answer',
         choices: [],
@@ -112,10 +182,10 @@ export default function QuizItemDetail() {
     }
   }
 
-  function onChangeClincherQuiz(data) {
+  function onChangeClincherQuiz(data, index) {
     if (quizData) {
-      const newClincher = quizData.clincher.map((clincher) => {
-        if (clincher.id === data.id) {
+      const newClincher = quizData.clincher.map((clincher, i) => {
+        if (i === index) {
           return data
         }
         return clincher
@@ -126,10 +196,10 @@ export default function QuizItemDetail() {
     }
   }
 
-  function onDeleteClincherQuiz(id) {
+  function onDeleteClincherQuiz(index) {
     if (quizData) {
-      const newClincher = quizData.clincher.filter((clincher) => {
-        return clincher.id !== id
+      const newClincher = quizData.clincher.filter((clincher, i) => {
+        return i !== index
       })
       const newQuizData = { ...quizData, clincher: newClincher }
       setQuizData(newQuizData)
@@ -139,7 +209,6 @@ export default function QuizItemDetail() {
   function onAddParticipantQuiz() {
     if (quizData) {
       const newParticipant = {
-        id: quizData.participants.length + 1,
         name: 'Participant Name',
         description: ''
       }
@@ -149,10 +218,10 @@ export default function QuizItemDetail() {
     }
   }
 
-  function onChangeParticipantQuiz(data) {
+  function onChangeParticipantQuiz(data, index) {
     if (quizData) {
-      const newParticipants = quizData.participants.map((participant) => {
-        if (participant.id === data.id) {
+      const newParticipants = quizData.participants.map((participant, i) => {
+        if (i === index) {
           return data
         }
         return participant
@@ -162,21 +231,22 @@ export default function QuizItemDetail() {
     }
   }
 
-  function onDeleteParticipantQuiz(id) {
+  function onDeleteParticipantQuiz(index) {
     if (quizData) {
-      const newParticipants = quizData.participants.filter((participant) => {
-        return participant.id !== id
+      const newParticipants = quizData.participants.filter((participant, i) => {
+        return i !== index
       })
       const newQuizData = { ...quizData, participants: newParticipants }
       setQuizData(newQuizData)
     }
   }
+
   return (
     <section className="p-4">
       <button onClick={handleBack}>
         <IoMdArrowRoundBack size={28} />
       </button>
-      {!data ? (
+      {!quizData ? (
         <p>Not Found Quiz Item</p>
       ) : (
         <>
@@ -256,7 +326,7 @@ export default function QuizItemDetail() {
                   <IoIosAdd size={28} className=" bg-myBlue-1 text-white rounded-md" />
                 </button>
               </div>
-              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 max-h-96">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
@@ -279,18 +349,18 @@ export default function QuizItemDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {quizData &&
+                    {quizData.questions &&
                       quizData.questions.map((question, index) => (
                         <QuestionItem
-                          key={question.id}
-                          id={question.id}
+                          key={crypto.randomUUID()}
+                          id={index}
                           index={index + 1}
                           question={question.question}
                           answer={question.answer}
                           choices={question.choices}
                           difficulty={question.difficulty}
-                          onChangeQuestionQuiz={(data) => onChangeQuestionQuiz(data)}
-                          onDelete={(id) => onDeleteQuestionQuiz(id)}
+                          onChangeQuestionQuiz={(data) => onChangeQuestionQuiz(data, index)}
+                          onDelete={() => onDeleteQuestionQuiz(index)}
                           onChangeOrder={(index: number, isUp: boolean, page: string) =>
                             onChangeOrder(index, isUp, page)
                           }
@@ -309,7 +379,7 @@ export default function QuizItemDetail() {
                   <IoIosAdd size={28} className=" bg-myBlue-1 text-white rounded-md" />
                 </button>
               </div>
-              <div className="relative first-line:overflow-x-auto shadow-md sm:rounded-lg max-h-96">
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 max-h-96">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
@@ -329,13 +399,13 @@ export default function QuizItemDetail() {
                     {quizData &&
                       quizData.participants.map((participant, index) => (
                         <ParticipantItem
-                          key={participant.id}
+                          key={crypto.randomUUID()}
                           id={participant.id}
                           index={index + 1}
                           name={participant.name}
                           description={participant.description}
-                          onChangeParticipantQuiz={(data) => onChangeParticipantQuiz(data)}
-                          onDelete={(id) => onDeleteParticipantQuiz(id)}
+                          onChangeParticipantQuiz={(data) => onChangeParticipantQuiz(data, index)}
+                          onDelete={() => onDeleteParticipantQuiz(index)}
                           onChangeOrder={(index: number, isUp: boolean, page: string) =>
                             onChangeOrder(index, isUp, page)
                           }
@@ -354,7 +424,7 @@ export default function QuizItemDetail() {
                   <IoIosAdd size={28} className=" bg-myBlue-1 text-white rounded-md" />
                 </button>
               </div>
-              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 max-h-96">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
@@ -380,15 +450,15 @@ export default function QuizItemDetail() {
                     {quizData &&
                       quizData.clincher.map((question, index) => (
                         <ClincherItem
-                          key={question.id}
+                          key={crypto.randomUUID()}
                           id={question.id}
                           index={index + 1}
                           question={question.question}
                           answer={question.answer}
                           choices={question.choices}
                           difficulty={question.difficulty}
-                          onChangeClincherQuiz={(data) => onChangeClincherQuiz(data)}
-                          onDelete={(id) => onDeleteClincherQuiz(id)}
+                          onChangeClincherQuiz={(data) => onChangeClincherQuiz(data, index)}
+                          onDelete={() => onDeleteClincherQuiz(index)}
                           onChangeOrder={(index: number, isUp: boolean, page: string) =>
                             onChangeOrder(index, isUp, page)
                           }
@@ -419,15 +489,15 @@ export default function QuizItemDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {quizData?.settings.map((setting, index) => (
+                    {quizData?.settings.map((setting) => (
                       <SettingItem
-                        key={index}
+                        key={crypto.randomUUID()}
                         data={setting}
                         onChangeSettings={(data: {
                           difficulty: string
                           points: number
                           time: number
-                        }) => onChangeSettings(data, index)}
+                        }) => onChangeSettings(data)}
                       />
                     ))}
                   </tbody>
@@ -532,7 +602,7 @@ type QuestionItemProp = {
     choices?: string[]
     difficulty: string
   }) => void
-  onDelete: (id: number) => void
+  onDelete: () => void
   onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
 
@@ -608,7 +678,7 @@ function QuestionItem(props: QuestionItemProp) {
                 onChange={onHandleChange}
               >
                 <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
+                <option value="average">Average</option>
                 <option value="hard">Hard</option>
               </select>
             </td>
@@ -633,7 +703,7 @@ function QuestionItem(props: QuestionItemProp) {
               <button onClick={() => setIsEdit((prev) => !prev)}>
                 <MdEdit size={20} className="text-slate-800" />
               </button>
-              <button onClick={() => props.onDelete(questionData.id)}>
+              <button onClick={() => props.onDelete()}>
                 <MdDelete size={20} className="text-red-600" />
               </button>
             </td>
@@ -650,7 +720,7 @@ type ParticipantItemProp = {
   name: string
   description?: string
   onChangeParticipantQuiz: (data: { id: number; name: string; description?: string }) => void
-  onDelete: (id: number) => void
+  onDelete: () => void
   onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
 
@@ -723,7 +793,7 @@ function ParticipantItem(props: ParticipantItemProp) {
               <button onClick={() => setIsEdit((prev) => !prev)}>
                 <MdEdit size={20} className="text-slate-800" />
               </button>
-              <button onClick={() => props.onDelete(participantData.id)}>
+              <button onClick={() => props.onDelete()}>
                 <MdDelete size={20} className="text-red-600" />
               </button>
             </td>
@@ -748,7 +818,7 @@ type ClincherItemProp = {
     choices?: string[]
     difficulty: string
   }) => void
-  onDelete: (id: number) => void
+  onDelete: () => void
   onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
 
@@ -840,7 +910,7 @@ function ClincherItem(props: ClincherItemProp) {
               <button onClick={() => setIsEdit((prev) => !prev)}>
                 <MdEdit size={20} className="text-slate-800" />
               </button>
-              <button onClick={() => props.onDelete(clincherData.id)}>
+              <button onClick={() => props.onDelete()}>
                 <MdDelete size={20} className="text-red-600" />
               </button>
             </td>

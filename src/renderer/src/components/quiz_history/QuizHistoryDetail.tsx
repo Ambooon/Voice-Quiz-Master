@@ -1,19 +1,71 @@
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { useState } from 'react'
+import { FaFileExport } from 'react-icons/fa'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import { useNavigate, useParams } from 'react-router-dom'
-import { QuizHistoryData } from './QuizHistoryData'
-import { FaFileExport } from 'react-icons/fa'
+import { QuizData } from './QuizHistoryData'
 
-const tabs = ['Participants', 'Questions', 'Score Sheet']
+const tabs = ['Participants', 'Questions']
 
 export default function QuizHistoryDetail() {
   const { id } = useParams()
-  const data = QuizHistoryData.find((item) => String(item.id) === id)
+  const data = QuizData.find((item) => String(item.id) === id)
   const [activeTab, setActiveTab] = useState(0)
   const navigate = useNavigate()
   function handleBack(): void {
     navigate(-1)
   }
+
+  function exportPDF() {
+    const doc = new jsPDF()
+    const participants: string[][] = []
+    data?.participants.forEach((participant) => {
+      participants.push([...Object.values(participant)].map((item) => String(item)))
+    })
+    const questions: string[][] = []
+    data?.questions.forEach((question) => {
+      questions.push([...Object.values(question)].map((item) => String(item)))
+    })
+
+    const text = [
+      `${data.title + ' ' + data.date}`,
+      data.description,
+      '',
+      'Settings',
+      `${data?.settings[0].difficulty.toUpperCase() + ': ' + data?.settings[0].points + ' points & ' + data?.settings[0].time + ' seconds'}`,
+      `${data?.settings[1].difficulty.toUpperCase() + ': ' + data?.settings[1].points + ' points & ' + data?.settings[1].time + ' seconds'}`,
+      `${data?.settings[2].difficulty.toUpperCase() + ': ' + data?.settings[2].points + ' points & ' + data?.settings[2].time + ' seconds'}`,
+      `${data?.settings[3].difficulty.toUpperCase() + ': ' + data?.settings[3].points + ' points & ' + data?.settings[3].time + ' seconds'}`
+    ]
+
+    doc.text(text, 14, 10)
+    let height = 0
+    text.forEach((item) => {
+      height += doc.getTextDimensions(item).h
+    })
+
+    let finalY = height + 15
+
+    console.log(finalY)
+    doc.text('Questions', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['No.', 'Question', 'Answer', 'Choices', 'Difficulty']],
+      body: questions
+    })
+
+    finalY = doc.lastAutoTable.finalY
+    doc.text('Participants', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['No.', 'Name', 'Description', 'Score']],
+      body: participants
+    })
+
+    doc.save('test.pdf')
+  }
+
   return (
     <section className="p-4">
       <button onClick={handleBack}>
@@ -32,7 +84,10 @@ export default function QuizHistoryDetail() {
               <p className="mb-8 text-gray-800 max-w-xl">{data.description}</p>
             </div>
             <div className="m-8">
-              <button className="text-white rounded-lg bg-myBlue-1 px-6 py-2 hover:bg-myBlue-2">
+              <button
+                className="text-white rounded-lg bg-myBlue-1 px-6 py-2 hover:bg-myBlue-2"
+                onClick={() => exportPDF()}
+              >
                 <FaFileExport size={32} />
               </button>
             </div>
@@ -59,7 +114,10 @@ export default function QuizHistoryDetail() {
           </ul>
 
           {activeTab === 1 && (
-            <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 mt-4">
+            <div
+              className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 mb-8 mt-4"
+              id="questions"
+            >
               <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                   <tr>
@@ -102,35 +160,18 @@ export default function QuizHistoryDetail() {
                         </button>
                       </div>
                     </th>
-                    <th scope="col" className="px-6 py-3">
-                      <div className="flex items-center">
-                        Points
-                        <button>
-                          <svg
-                            className="w-3 h-3 ms-1.5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.questions.map((question, index) => (
                     <QuestionItem
-                      key={question.id}
+                      key={index}
                       id={question.id}
                       index={index + 1}
                       question={question.question}
                       answer={question.answer}
                       choices={question.choices}
                       difficulty={question.difficulty}
-                      points={question.points}
                     />
                   ))}
                 </tbody>
@@ -139,7 +180,10 @@ export default function QuizHistoryDetail() {
           )}
 
           {activeTab === 0 && (
-            <div className="relative mt-4 overflow-x-auto shadow-md sm:rounded-lg max-h-96">
+            <div
+              className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 mt-4 max-h-96"
+              id="myTable"
+            >
               <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                   <tr>
@@ -197,7 +241,7 @@ export default function QuizHistoryDetail() {
                 <tbody>
                   {data.participants.map((participant, index) => (
                     <ParticipantItem
-                      key={participant.id}
+                      key={index}
                       id={participant.id}
                       index={index + 1}
                       name={participant.name}
@@ -222,7 +266,6 @@ type QuestionItemProp = {
   answer: string
   choices?: string[]
   difficulty: string
-  points: number
 }
 
 function QuestionItem(props: QuestionItemProp) {
@@ -235,7 +278,6 @@ function QuestionItem(props: QuestionItemProp) {
       <td className="px-6 py-4">{props.answer}</td>
       <td className="px-6 py-4">{props.choices ? props.choices : '-'}</td>
       <td className="px-6 py-4">{props.difficulty}</td>
-      <td className="px-6 py-4">{props.points}</td>
     </tr>
   )
 }

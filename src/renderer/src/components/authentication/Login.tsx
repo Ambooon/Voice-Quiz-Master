@@ -1,35 +1,36 @@
+import { getSHA256Hash } from 'boring-webcrypto-sha256'
 import { SyntheticEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { UserDataType } from './Types'
 
 export default function Login() {
   const [userData, setUserData] = useState({
     username: '',
     password: ''
   })
-  const [errorMessages, setErrorMessages] = useState<string[]>([])
+  const [errorMessages, setErrorMessages] = useState('')
   const navigate = useNavigate()
 
-  function handleSubmit(e: SyntheticEvent) {
+  async function handleSubmit(e: SyntheticEvent) {
     e.preventDefault()
-    // if (!validateUserData(userData)) {
-    //   navigate('/')
-    // }
-    navigate('/')
+    setErrorMessages('')
+    if (await validateUserData(userData)) {
+      console.log('login')
+      // navigate('/')
+      // sessionStorage.setItem('username', userData.username)
+      // sessionStorage.setItem('isLoggedIn', 'true')
+    }
+    // navigate('/')
   }
 
-  // function validateUserData(userData: UserDataType): number {
-  //   // Call to API
-  //   // validation if success call API if not show error message
-
-  //   // if not match in database
-  //   // if (true) {
-  //   //   console.log(userData)
-  //   //   setErrorMessages(["Account don't found"])
-  //   //   return 1
-  //   // } else {
-  //   //   return 0
-  //   // }
-  // }
+  async function validateUserData(userData: UserDataType) {
+    const hashPassword = await getSHA256Hash(userData.password)
+    if (await window.api.login({ username: userData.username, password: hashPassword })) {
+      return true
+    }
+    setErrorMessages('Account not found')
+    return false
+  }
 
   return (
     <div className="h-screen flex justify-center items-center">
@@ -42,6 +43,7 @@ export default function Login() {
             name="username"
             value={userData.username}
             placeholder="Enter your username"
+            required
             onChange={(e) => setUserData({ ...userData, username: e.target.value })}
           />
           <br />
@@ -51,18 +53,16 @@ export default function Login() {
             name="password"
             value={userData.password}
             placeholder="Enter your password"
+            required
             onChange={(e) => setUserData({ ...userData, password: e.target.value })}
           />
           <br />
-          {errorMessages &&
-            errorMessages.map((err) => (
-              <p key={err} className="text-red-500 font-light">
-                {err}
-              </p>
-            ))}
-          <button className="px-3 py-1 rounded-md bg-myBlue-1 mb-8 mt-2 text-white hover:bg-myBlue-2">
-            Login
-          </button>
+          {errorMessages && <p className="text-red-500 font-light">{errorMessages}</p>}
+          <input
+            className="px-3 py-1 rounded-md bg-myBlue-1 mb-8 mt-2 text-white hover:bg-myBlue-2 cursor-pointer"
+            type="submit"
+            value="Login"
+          />
           <br />
           <Link to="/register" className="font-thin text-sm text-myBlue-1">
             Not yet registered?
