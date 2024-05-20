@@ -58,7 +58,7 @@ export default function QuizHistoryDetail() {
     doc.text('Participants', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['No.', 'Name', 'Description', 'Score']],
+      head: [['Name', 'Description', 'Score']],
       body: participants
     })
 
@@ -66,7 +66,7 @@ export default function QuizHistoryDetail() {
     doc.text('Questions', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['No.', 'Question', 'Answer', 'Choices', 'Difficulty']],
+      head: [['Question', 'Answer', 'Choices', 'Difficulty']],
       body: questions
     })
 
@@ -74,7 +74,7 @@ export default function QuizHistoryDetail() {
     doc.text('Clincher Questions', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['No.', 'Question', 'Answer', 'Choices', 'Difficulty']],
+      head: [['Question', 'Answer', 'Choices', 'Difficulty']],
       body: clinchers
     })
     finalY = doc.lastAutoTable.finalY
