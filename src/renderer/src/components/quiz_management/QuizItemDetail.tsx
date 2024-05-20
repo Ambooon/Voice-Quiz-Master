@@ -75,7 +75,10 @@ export default function QuizItemDetail() {
             difficulty: 'clincher'
           }
         ],
-        participants: [{ name: 'Participant 1', description: 'Participant Description' }]
+        participants: [
+          { name: 'Participant 1', description: 'Participant Description' },
+          { name: 'Participant 2', description: 'Participant Description' }
+        ]
       }
       setQuizData(_data)
     }
@@ -612,7 +615,11 @@ function QuestionItem(props: QuestionItemProp) {
   const [questionData, setQuestionData] = useState(props)
   const [isEdit, setIsEdit] = useState(false)
   function onHandleChange(e) {
-    const { name, value } = e.target
+    // eslint-disable-next-line prefer-const
+    let { name, value } = e.target
+    if (name === 'choices') {
+      value = e.target.value.split(',')
+    }
     setQuestionData((prev) => ({
       ...prev,
       [name]: value
@@ -828,7 +835,10 @@ function ClincherItem(props: ClincherItemProp) {
   const [clincherData, setClincherData] = useState(props)
   const [isEdit, setIsEdit] = useState(false)
   function onHandleChange(e) {
-    const { name, value } = e.target
+    let { name, value } = e.target
+    if (name === 'choices') {
+      value = e.target.value.split(',')
+    }
     setClincherData((prev) => ({
       ...prev,
       [name]: value
