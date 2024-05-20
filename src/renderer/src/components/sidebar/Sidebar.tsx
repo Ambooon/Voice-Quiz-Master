@@ -24,7 +24,7 @@ export default function Sidebar() {
       </div>
 
       <div className="flex justify-between items-center">
-        <p>Hello, Username</p>
+        <p>Hello, {sessionStorage.getItem('username')}</p>
         <NavLink to={'/profile'}>
           <IoIosSettings />
         </NavLink>
