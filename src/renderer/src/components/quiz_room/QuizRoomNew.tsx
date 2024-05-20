@@ -3,24 +3,26 @@ import { MdNavigateNext } from 'react-icons/md'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import LeaderboardPage from './LeaderboardPage'
 import QuestionPage from './QuestionPage'
-import { QuizData } from './QuizData'
 import RankingPage from './RankingPage'
 import ScoringPage from './ScoringPage'
 
 export default function QuizRoomMain() {
   const { id } = useParams()
-  const quizData = QuizData.find((item) => String(item.id) === id)
+  // const quizData = QuizData.find((item) => String(item.id) === '1')
+  // const questions = quizData.questions
+  // const participants = quizData.participants.map((participant) => ({
+  //   ...participant,
+  //   score: 0
+  // }))
 
-  const questions = quizData.questions
-  const participants = quizData.participants.map((participant) => ({
-    ...participant,
-    score: 0
-  }))
+  const [quizData, setQuizData] = useState()
+  const [questions, setQuestions] = useState()
+  const [participants, setParticipants] = useState()
+  const [participantsScore, setParticipantsScore] = useState()
   const [socket, setSocket] = useState()
   const [currentPage, setCurrentPage] = useState('start')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isDone, setIsDone] = useState(false)
-  const [participantsScore, setParticipantsScore] = useState(participants)
   const [isClincher, setIsClincher] = useState(false)
 
   const questionPageRef = useRef()
@@ -62,6 +64,19 @@ export default function QuizRoomMain() {
   }
 
   useEffect(() => {
+    async function getQuiz() {
+      let _quizData = await window.api.getQuiz(id)
+      setQuizData(_quizData)
+      const participants = _quizData.participants.map((participant) => ({
+        ...participant,
+        score: 0
+      }))
+      _quizData = { ..._quizData, participants: participants }
+      setQuestions(_quizData.questions)
+      setParticipants(participants)
+      setParticipantsScore(participants)
+    }
+    getQuiz()
     const { createClient } = deepgram
     // don't hard code the API here
     const _deepgram = createClient('b48716aeb2761c8fafe5ed04a1a84af0f2675adc')
@@ -224,8 +239,8 @@ export default function QuizRoomMain() {
   }
 
   function scoreParticipant(scores: { id: number; isCorrect: boolean }[]) {
-    const newParticipantsScore = participantsScore.map((participant) => {
-      const score = scores.find((score) => score.id === participant.id)
+    const newParticipantsScore = participantsScore.map((participant, index) => {
+      const score = scores.find((score) => score.id === index)
       if (score?.isCorrect) {
         if (!isClincher) {
           const points = quizData?.settings.find(
@@ -251,6 +266,17 @@ export default function QuizRoomMain() {
     setParticipantsScore(newParticipantsScore)
   }
 
+  async function createQuizHistory() {
+    const date = new Date().toISOString().slice(0, 10)
+    const { _id, ..._quizData } = quizData
+    const historyData = { ..._quizData, date: date, participants: participantsScore }
+    console.log(_quizData)
+
+    const result = await window.api.createQuizHistory(historyData)
+    if (result) {
+      console.log(result)
+    }
+  }
   if (currentPage === 'start') {
     return (
       <>
@@ -292,7 +318,10 @@ export default function QuizRoomMain() {
     } else {
       const sortedParticipantsScore = participantsScore
       sortedParticipantsScore.sort(compare)
-      if (sortedParticipantsScore[0].score === sortedParticipantsScore[1].score) {
+      if (
+        sortedParticipantsScore[0].score === sortedParticipantsScore[1].score &&
+        sortedParticipantsScore.length > 1
+      ) {
         return (
           <>
             <div className="w-full h-full flex justify-center items-center text-center">
@@ -376,6 +405,7 @@ export default function QuizRoomMain() {
       setIsDone(true)
     }
   } else if (isDone) {
+    createQuizHistory()
     microphoneRef.current?.stop()
     clearInterval(keepAliveIntervalId.current)
     const closeMessage = JSON.stringify({ type: 'CloseStream' })

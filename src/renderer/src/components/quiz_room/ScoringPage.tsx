@@ -25,7 +25,8 @@ const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
 
   function scoreParticipant(id: number, isCorrect = false) {
     const nextParticipants = [...participants]
-    const participant = nextParticipants.find((p) => p.id === id)
+    // const participant = nextParticipants.find((p) => p.id === id)
+    const participant = nextParticipants.find((p, index) => index + 1 === id)
     if (participant) {
       participant.isScored = true
       participant.isCorrect = isCorrect
@@ -39,9 +40,9 @@ const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
   }
 
   function sendScores() {
-    const scores = participants.map((participant) => {
+    const scores = participants.map((participant, index) => {
       const { id, isCorrect } = participant
-      return { id: id, isCorrect: isCorrect }
+      return { id: index, isCorrect: isCorrect }
     })
     props.onFinishScoring(scores)
   }
@@ -62,7 +63,7 @@ const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
         {participants.map((participant, index) => {
           return (
             <RankingItem
-              key={index}
+              key={crypto.randomUUID()}
               index={index + 1}
               id={participant.id}
               name={participant.name}
@@ -102,10 +103,10 @@ function RankingItem(props: RankingItemProp) {
       </p>
 
       <div className="flex justify-between gap-4 items-center">
-        <button onClick={() => props.onManualScore(props.id, true)}>
+        <button onClick={() => props.onManualScore(props.index, true)}>
           <FaCheck />
         </button>
-        <button onClick={() => props.onManualScore(props.id, false)}>
+        <button onClick={() => props.onManualScore(props.index, false)}>
           <RxCross2 />
         </button>
       </div>
