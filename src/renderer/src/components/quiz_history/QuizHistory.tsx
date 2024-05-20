@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { FaCheck } from 'react-icons/fa'
 import { MdDelete } from 'react-icons/md'
+import { RxCross2 } from 'react-icons/rx'
 import { useNavigate } from 'react-router-dom'
 
 export default function QuizHistory() {
@@ -12,6 +14,12 @@ export default function QuizHistory() {
     }
     getQuizzes()
   }, [])
+
+  function handleDelete(e, id) {
+    e.stopPropagation()
+    window.api.deleteQuizHistory(id)
+    window.location.reload()
+  }
 
   return (
     <section className="p-4">
@@ -30,6 +38,7 @@ export default function QuizHistory() {
                   id={data.id}
                   title={data.title}
                   date={data.date}
+                  onDelete={(e, id) => handleDelete(e, id)}
                 />
               </li>
             )
@@ -44,9 +53,11 @@ type QuizHistoryItemProp = {
   id: number
   title: string
   date: string //year-month-day 2002-08-29
+  onDelete: (e, id) => void
 }
 
 function QuizHistoryItem(props: QuizHistoryItemProp) {
+  const [isPopup, setIsPopup] = useState(false)
   const navigate = useNavigate()
   function handleClick() {
     navigate(`/quiz-history/${props.id}`)
@@ -61,14 +72,38 @@ function QuizHistoryItem(props: QuizHistoryItemProp) {
         <time dateTime={props.date}>{props.date}</time>
       </p>
       <div className="flex gap-4 col-span-1">
-        <button
-          onClick={(e) => {
-            e.stopPropagation
-            console.log('delete')
-          }}
-        >
-          <MdDelete />
-        </button>
+        {isPopup ? (
+          <div className=" flex justify-between items-center gap-4">
+            <button
+              className="hover:text-red-500"
+              onClick={(e) => {
+                e.stopPropagation()
+                props.onDelete(e, props.id)
+              }}
+            >
+              <FaCheck size={20} />
+            </button>
+            <button
+              className="hover:text-red-500"
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsPopup((prev) => !prev)
+              }}
+            >
+              <RxCross2 size={20} />
+            </button>
+          </div>
+        ) : (
+          <button
+            className="hover:text-red-500"
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsPopup((prev) => !prev)
+            }}
+          >
+            <MdDelete size={28} />
+          </button>
+        )}
       </div>
     </div>
   )
