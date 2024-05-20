@@ -17,7 +17,7 @@ export default function QuizManagement() {
   useEffect(() => {
     async function getQuizzes() {
       // change the argument to current user
-      setQuizData(await window.api.getQuizzes('Francis'))
+      setQuizData(await window.api.getQuizzes(sessionStorage.getItem('username')))
     }
     getQuizzes()
   }, [])

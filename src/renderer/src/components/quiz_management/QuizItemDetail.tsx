@@ -50,7 +50,7 @@ export default function QuizItemDetail() {
       const _data = {
         title: 'Quiz Title',
         // change this user later, get it from logged user
-        user: 'Francis',
+        user: sessionStorage.getItem('username'),
         date: new Date().toISOString().slice(0, 10),
         description: 'Quiz Description',
         settings: [
