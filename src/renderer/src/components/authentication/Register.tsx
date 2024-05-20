@@ -1,5 +1,5 @@
 import { getSHA256Hash } from 'boring-webcrypto-sha256'
-import { SyntheticEvent, useEffect, useState } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserDataType } from './Types'
 
@@ -11,10 +11,6 @@ export default function Register() {
   })
   const [errorMessages, setErrorMessages] = useState<string[]>([])
   const navigate = useNavigate()
-
-  useEffect(() => {
-    console.log('useEffect')
-  }, [])
 
   async function handleSubmit(e: SyntheticEvent) {
     setErrorMessages([])
