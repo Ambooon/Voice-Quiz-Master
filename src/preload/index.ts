@@ -38,7 +38,7 @@ const api = {
   },
   getQuizzes: async (user) => {
     let quizzes = await quizzesDb
-      .find({ user: user }, { title: 1, data: 1, description: 1 })
+      .find({ user: user }, { title: 1, date: 1, description: 1 })
       .toArray()
 
     quizzes = quizzes.map((quiz) => {
@@ -54,7 +54,9 @@ const api = {
   },
   getQuiz: async (id) => {
     const _id = new ObjectId(id)
-    return await quizzesDb.findOne({ _id: _id })
+    let result = await quizzesDb.findOne({ _id: _id })
+    result = { id: _id.toHexString(), ...result }
+    return result
   },
   updateQuiz: async (id, data) => {
     const { _id, ...rest } = data
@@ -63,6 +65,41 @@ const api = {
   deleteQuiz: async (id) => {
     const _id = new ObjectId(id)
     return await quizzesDb.findOneAndDelete({ _id: _id })
+  },
+  getQuizzesHistory: async (user) => {
+    let quizzes = await historyDb
+      .find({ user: user }, { title: 1, date: 1, description: 1 })
+      .toArray()
+
+    quizzes = quizzes.map((quiz) => {
+      return {
+        ...quiz,
+        id: quiz._id.toHexString()
+      }
+    })
+    return quizzes
+  },
+  createQuizHistory: async (data) => {
+    return await historyDb.insertOne(data)
+  },
+  deleteQuizHistory: async (id) => {
+    const _id = new ObjectId(id)
+    return await historyDb.findOneAndDelete({ _id: _id })
+  },
+  getQuizHistory: async (id) => {
+    const _id = new ObjectId(id)
+    const result = await historyDb.findOne({ _id: _id })
+    return result
+  },
+  changePassword: async (data: { username: string; oldPassword: string; newPassword: string }) => {
+    const result = await adminsDb.findOneAndReplace(
+      {
+        username: data.username,
+        password: data.oldPassword
+      },
+      { username: data.username, password: data.newPassword }
+    )
+    return result
   }
 }
 // Use `contextBridge` APIs to expose Electron APIs to
