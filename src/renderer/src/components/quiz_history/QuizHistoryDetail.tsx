@@ -45,16 +45,7 @@ export default function QuizHistoryDetail() {
       settings.push([...Object.values(setting)].map((item) => String(item)))
     })
 
-    const text = [
-      `${data.title + ' ' + '(' + data.date + ')'}`,
-      data.description
-      // '',
-      // 'Settings',
-      // `${data?.settings[0].difficulty.toUpperCase() + ': ' + data?.settings[0].points + ' points & ' + data?.settings[0].time + ' seconds'}`,
-      // `${data?.settings[1].difficulty.toUpperCase() + ': ' + data?.settings[1].points + ' points & ' + data?.settings[1].time + ' seconds'}`,
-      // `${data?.settings[2].difficulty.toUpperCase() + ': ' + data?.settings[2].points + ' points & ' + data?.settings[2].time + ' seconds'}`,
-      // `${data?.settings[3].difficulty.toUpperCase() + ': ' + data?.settings[3].points + ' points & ' + data?.settings[3].time + ' seconds'}`
-    ]
+    const text = [`${data.title + ' ' + '(' + data.date + ')'}`, data.description]
 
     doc.text(text, 14, 10)
     let height = 0

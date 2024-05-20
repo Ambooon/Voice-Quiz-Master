@@ -8,7 +8,7 @@ export default function QuizHistory() {
   useEffect(() => {
     async function getQuizzes() {
       // change the argument to current user
-      setQuizData(await window.api.getQuizzesHistory('Francis'))
+      setQuizData(await window.api.getQuizzesHistory(sessionStorage.getItem('username')))
     }
     getQuizzes()
   }, [])
