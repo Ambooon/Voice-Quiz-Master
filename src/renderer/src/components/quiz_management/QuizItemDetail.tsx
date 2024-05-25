@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { FaCheck, FaPlay } from 'react-icons/fa'
 import { ImCross } from 'react-icons/im'
-import { IoIosAdd, IoMdArrowRoundBack } from 'react-icons/io'
+import { IoIosAdd, IoIosHelpCircleOutline, IoMdArrowRoundBack } from 'react-icons/io'
 import { MdDelete, MdEdit } from 'react-icons/md'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 
@@ -38,7 +38,7 @@ export default function QuizItemDetail() {
   const [activeTab, setActiveTab] = useState(0)
   const [quizData, setQuizData] = useState<any[]>([])
   const [isEdit, setIsEdit] = useState(false)
-
+  const [isCreate, setIsCreate] = useState(false)
   const navigate = useNavigate()
   useEffect(() => {
     async function getQuiz() {
@@ -47,6 +47,7 @@ export default function QuizItemDetail() {
     if (id !== 'create') {
       getQuiz()
     } else {
+      setIsCreate(true)
       const _data = {
         title: 'Quiz Title',
         // change this user later, get it from logged user
@@ -54,10 +55,10 @@ export default function QuizItemDetail() {
         date: new Date().toISOString().slice(0, 10),
         description: 'Quiz Description',
         settings: [
-          { difficulty: 'easy', points: 2, time: 15 },
-          { difficulty: 'average', points: 5, time: 25 },
-          { difficulty: 'hard', points: 10, time: 35 },
-          { difficulty: 'clincher', points: 15, time: 40 }
+          { difficulty: 'easy', points: 2, time: 15, number_participants: 10 },
+          { difficulty: 'average', points: 5, time: 25, number_participants: 10 },
+          { difficulty: 'hard', points: 10, time: 35, number_participants: 10 },
+          { difficulty: 'clincher', time: 35 }
         ],
         questions: [
           {
@@ -69,15 +70,15 @@ export default function QuizItemDetail() {
         ],
         clincher: [
           {
-            question: 'Clincher 1',
+            question: 'Question 1',
             answer: 'Answer 1',
             choices: ['Choice 1', 'Choice 2'],
             difficulty: 'clincher'
           }
         ],
         participants: [
-          { name: 'Participant 1', description: 'Participant Description' },
-          { name: 'Participant 2', description: 'Participant Description' }
+          { name: 'Participant 1', description: '-' },
+          { name: 'Participant 2', description: '-' }
         ]
       }
       setQuizData(_data)
@@ -114,7 +115,12 @@ export default function QuizItemDetail() {
     // console.log(arr)
   }
 
-  function onChangeSettings(data: { difficulty: string; points: number; time: number }) {
+  function onChangeSettings(data: {
+    difficulty: string
+    points: number
+    time: number
+    number_participants: number
+  }) {
     if (quizData) {
       const newSettings = quizData.settings.map((setting) => {
         if (setting.difficulty === data.difficulty) {
@@ -291,9 +297,9 @@ export default function QuizItemDetail() {
                 className="flex justify-between items-center gap-4 text-white rounded-lg bg-myBlue-1 px-6 py-2 hover:bg-myBlue-2"
                 onClick={() => onSaveChanges()}
               >
-                Save Changes
+                {!isCreate ? 'Save Changes' : 'Save'}
               </button>
-              {id !== 'created' && (
+              {!isCreate && (
                 <NavLink
                   to={`/quiz-room/${quizData?.id}`}
                   className="flex justify-between items-center gap-4 text-white rounded-lg bg-myBlue-1 px-6 py-2 hover:bg-myBlue-2"
@@ -344,8 +350,27 @@ export default function QuizItemDetail() {
                       <th scope="col" className="px-6 py-3">
                         Answer
                       </th>
-                      <th scope="col" className="px-6 py-3">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 flex justify-start items-center gap-2 relative"
+                      >
                         Choices
+                        <IoIosHelpCircleOutline
+                          size={20}
+                          className="hover:cursor-help"
+                          onMouseEnter={() => {
+                            document.getElementById('choices-tooltip')?.classList.remove('hidden')
+                          }}
+                          onMouseLeave={() => {
+                            document.getElementById('choices-tooltip')?.classList.add('hidden')
+                          }}
+                        />
+                        <div
+                          id="choices-tooltip"
+                          className="hidden bg-slate-50 rounded-md shadow-sm p-2 w-24 absolute top-2 left-28 capitalize font-normal"
+                        >
+                          <p>{'Seperate choices by comma ( , )'}</p>
+                        </div>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <div className="flex items-center">Difficulty</div>
@@ -354,11 +379,10 @@ export default function QuizItemDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {quizData.questions &&
-                      quizData.questions.map((question, index) => (
+                    {quizData &&
+                      quizData.questions?.map((question, index) => (
                         <QuestionItem
                           key={crypto.randomUUID()}
-                          id={index}
                           index={index + 1}
                           question={question.question}
                           answer={question.answer}
@@ -405,7 +429,6 @@ export default function QuizItemDetail() {
                       quizData.participants.map((participant, index) => (
                         <ParticipantItem
                           key={crypto.randomUUID()}
-                          id={participant.id}
                           index={index + 1}
                           name={participant.name}
                           description={participant.description}
@@ -442,8 +465,27 @@ export default function QuizItemDetail() {
                       <th scope="col" className="px-6 py-3">
                         Answer
                       </th>
-                      <th scope="col" className="px-6 py-3">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 flex justify-start items-center gap-2 relative"
+                      >
                         Choices
+                        <IoIosHelpCircleOutline
+                          size={20}
+                          className="hover:cursor-help"
+                          onMouseEnter={() => {
+                            document.getElementById('choices-tooltip')?.classList.remove('hidden')
+                          }}
+                          onMouseLeave={() => {
+                            document.getElementById('choices-tooltip')?.classList.add('hidden')
+                          }}
+                        />
+                        <div
+                          id="choices-tooltip"
+                          className="hidden bg-slate-50 rounded-md shadow-sm p-2 w-24 absolute top-2 left-28 capitalize font-normal"
+                        >
+                          <p>{'Seperate choices by comma ( , )'}</p>
+                        </div>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <div className="flex items-center">Difficulty</div>
@@ -453,10 +495,9 @@ export default function QuizItemDetail() {
                   </thead>
                   <tbody>
                     {quizData &&
-                      quizData.clincher.map((question, index) => (
+                      quizData.clincher?.map((question, index) => (
                         <ClincherItem
                           key={crypto.randomUUID()}
-                          id={question.id}
                           index={index + 1}
                           question={question.question}
                           answer={question.answer}
@@ -490,21 +531,26 @@ export default function QuizItemDetail() {
                       <th scope="col" className="px-6 py-3">
                         Timer (Seconds)
                       </th>
+                      <th scope="col" className="px-6 py-3">
+                        No. of participants
+                      </th>
                       <th scope="col" className="px-6 py-3"></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {quizData?.settings.map((setting) => (
-                      <SettingItem
-                        key={crypto.randomUUID()}
-                        data={setting}
-                        onChangeSettings={(data: {
-                          difficulty: string
-                          points: number
-                          time: number
-                        }) => onChangeSettings(data)}
-                      />
-                    ))}
+                    {quizData &&
+                      quizData.settings?.map((setting) => (
+                        <SettingItem
+                          key={crypto.randomUUID()}
+                          data={setting}
+                          onChangeSettings={(data: {
+                            difficulty: string
+                            points: number
+                            time: number
+                            number_participants: number
+                          }) => onChangeSettings(data)}
+                        />
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -517,8 +563,13 @@ export default function QuizItemDetail() {
 }
 
 type SettingItemProp = {
-  data: { difficulty: string; points: number; time: number }
-  onChangeSettings: (data: { difficulty: string; points: number; time: number }) => void
+  data: { difficulty: string; points: number; time: number; number_participants: number }
+  onChangeSettings: (data: {
+    difficulty: string
+    points: number
+    time: number
+    number_participants: number
+  }) => void
 }
 
 function SettingItem(props: SettingItemProp) {
@@ -546,17 +597,21 @@ function SettingItem(props: SettingItemProp) {
         </th>
         {isEdit ? (
           <>
-            <td className="px-6 py-4 text-gray-800">
-              <input
-                className="px-1 border border-slate-800 rounded-sm w-20"
-                type="number"
-                name="points"
-                value={settingsData.points}
-                onChange={(e) =>
-                  setSettingsData((prev) => ({ ...prev, points: Number(e.target.value) }))
-                }
-              />
-            </td>
+            {settingsData.difficulty !== 'clincher' ? (
+              <td className="px-6 py-4 text-gray-800">
+                <input
+                  className="px-1 border border-slate-800 rounded-sm w-20"
+                  type="number"
+                  name="points"
+                  value={settingsData.points}
+                  onChange={(e) =>
+                    setSettingsData((prev) => ({ ...prev, points: Number(e.target.value) }))
+                  }
+                />
+              </td>
+            ) : (
+              <td className="px-6 py-4 text-gray-800">-</td>
+            )}
             <td className="px-6 py-4 text-gray-800">
               <input
                 className="px-1 border border-slate-800 rounded-sm w-20"
@@ -568,6 +623,24 @@ function SettingItem(props: SettingItemProp) {
                 }
               />
             </td>
+            {settingsData.difficulty !== 'clincher' ? (
+              <td className="px-6 py-4 text-gray-800">
+                <input
+                  className="px-1 border border-slate-800 rounded-sm w-20"
+                  type="number"
+                  name="number_participants"
+                  value={settingsData.number_participants}
+                  onChange={(e) =>
+                    setSettingsData((prev) => ({
+                      ...prev,
+                      number_participants: Number(e.target.value)
+                    }))
+                  }
+                />
+              </td>
+            ) : (
+              <td className="px-6 py-4 text-gray-800">-</td>
+            )}
             <td className="py-4 flex justify-center items-center gap-4">
               <button onClick={() => onConfirmEdit()}>
                 <FaCheck size={16} className="text-slate-800" />
@@ -579,8 +652,13 @@ function SettingItem(props: SettingItemProp) {
           </>
         ) : (
           <>
-            <td className="px-6 py-4 text-gray-800">{settingsData.points}</td>
+            <td className="px-6 py-4 text-gray-800">
+              {settingsData.points ? settingsData.points : '-'}
+            </td>
             <td className="px-6 py-4 text-gray-800">{settingsData.time}</td>
+            <td className="px-6 py-4 text-gray-800">
+              {settingsData.number_participants ? settingsData.number_participants : '-'}
+            </td>
             <td className="py-4 flex justify-center items-center gap-4">
               <button onClick={() => setIsEdit((prev) => !prev)}>
                 <MdEdit size={20} className="text-slate-800" />
@@ -594,14 +672,12 @@ function SettingItem(props: SettingItemProp) {
 }
 
 type QuestionItemProp = {
-  id: number
   index: number
   question: string
   answer: string
   choices?: string[]
   difficulty: string
   onChangeQuestionQuiz: (data: {
-    id: number
     question: string
     answer: string
     choices?: string[]
@@ -724,11 +800,10 @@ function QuestionItem(props: QuestionItemProp) {
 }
 
 type ParticipantItemProp = {
-  id: number
   index: number
   name: string
   description?: string
-  onChangeParticipantQuiz: (data: { id: number; name: string; description?: string }) => void
+  onChangeParticipantQuiz: (data: { name: string; description?: string }) => void
   onDelete: () => void
   onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
@@ -814,14 +889,12 @@ function ParticipantItem(props: ParticipantItemProp) {
 }
 
 type ClincherItemProp = {
-  id: number
   index: number
   question: string
   answer: string
   choices?: string[]
   difficulty: string
   onChangeClincherQuiz: (data: {
-    id: number
     question: string
     answer: string
     choices?: string[]
