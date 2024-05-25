@@ -15,7 +15,6 @@ export default function Login() {
     e.preventDefault()
     setErrorMessages('')
     if (await validateUserData(userData)) {
-      console.log('login')
       sessionStorage.setItem('username', userData.username)
       sessionStorage.setItem('isLoggedIn', 'true')
       navigate('/')
