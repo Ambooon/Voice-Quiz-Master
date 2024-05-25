@@ -5,7 +5,15 @@ import { FaFileExport } from 'react-icons/fa'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import { useNavigate, useParams } from 'react-router-dom'
 
-const tabs = ['Participants', 'Questions', 'Clinchers', 'Settings']
+const tabs = [
+  'Participants',
+  'Questions',
+  'Clinchers',
+  'Easy Round',
+  'Average Round',
+  'Hard Round',
+  'Settings'
+]
 
 export default function QuizHistoryDetail() {
   const { id } = useParams()
@@ -44,9 +52,52 @@ export default function QuizHistoryDetail() {
     data?.settings.forEach((setting) => {
       settings.push([...Object.values(setting)].map((item) => String(item)))
     })
+    settings[3] = [settings[3][0], '-', settings[3][1], '-']
+    console.log(settings[3])
+    const easy: string[][] = []
+    data?.easy.participants.forEach((participant) => {
+      easy.push(
+        [...Object.values(participant)].map((item, index) => {
+          if (index === 3) {
+            return item === true ? 'Wins' : 'Lose'
+          } else if (index === 4) {
+            return item === true ? 'Wins from clincher' : ''
+          }
+          return String(item)
+        })
+      )
+    })
+
+    const average: string[][] = []
+    data?.average.participants.forEach((participant) => {
+      average.push(
+        [...Object.values(participant)].map((item, index) => {
+          if (index === 3) {
+            return item === true ? 'Wins' : 'Lose'
+          } else if (index === 4) {
+            return item === true ? 'Wins from clincher' : ''
+          }
+          return String(item)
+        })
+      )
+    })
+
+    const hard: string[][] = []
+    data?.hard.participants.forEach((participant) => {
+      hard.push(
+        [...Object.values(participant)].map((item, index) => {
+          if (index === 3) {
+            return item === true ? 'Wins' : 'Lose'
+          } else if (index === 4) {
+            return item === true ? 'Wins from clincher' : ''
+          }
+          return String(item)
+        })
+      )
+    })
 
     const text = [`${data.title + ' ' + '(' + data.date + ')'}`, data.description]
-
+    console.log(data)
     doc.text(text, 14, 10)
     let height = 0
     text.forEach((item) => {
@@ -58,7 +109,7 @@ export default function QuizHistoryDetail() {
     doc.text('Participants', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['Name', 'Description', 'Score']],
+      head: [['Name', 'Description']],
       body: participants
     })
 
@@ -78,10 +129,31 @@ export default function QuizHistoryDetail() {
       body: clinchers
     })
     finalY = doc.lastAutoTable.finalY
+    doc.text('Easy Round', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['Name', 'Description', 'Points', 'Wins Round', 'Wins Clincher']],
+      body: easy
+    })
+    finalY = doc.lastAutoTable.finalY
+    doc.text('Average Round', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['Name', 'Description', 'Points', 'Wins Round', 'Wins Clincher']],
+      body: average
+    })
+    finalY = doc.lastAutoTable.finalY
+    doc.text('Hard Round', 14, finalY + 15)
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['Name', 'Description', 'Points', 'Wins Round', 'Wins Clincher']],
+      body: hard
+    })
+    finalY = doc.lastAutoTable.finalY
     doc.text('Settings', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['Difficulty', 'Points', 'Time (Seconds)']],
+      head: [['Difficulty', 'Points', 'Time (Seconds)', 'No. of Participants']],
       body: settings
     })
 
@@ -145,17 +217,6 @@ export default function QuizHistoryDetail() {
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       No.
-                      <button>
-                        <svg
-                          className="w-3 h-3 ms-1.5"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                        </svg>
-                      </button>
                     </th>
                     <th scope="col" className="px-6 py-3">
                       Question
@@ -167,20 +228,7 @@ export default function QuizHistoryDetail() {
                       Choices
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      <div className="flex items-center">
-                        Difficulty
-                        <button>
-                          <svg
-                            className="w-3 h-3 ms-1.5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                          </svg>
-                        </button>
-                      </div>
+                      <div className="flex items-center">Difficulty</div>
                     </th>
                   </tr>
                 </thead>
@@ -188,7 +236,6 @@ export default function QuizHistoryDetail() {
                   {data.questions.map((question, index) => (
                     <QuestionItem
                       key={crypto.randomUUID()}
-                      id={question.id}
                       index={index + 1}
                       question={question.question}
                       answer={question.answer}
@@ -211,49 +258,9 @@ export default function QuizHistoryDetail() {
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       No.
-                      <button>
-                        <svg
-                          className="w-3 h-3 ms-1.5"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                        </svg>
-                      </button>
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      <div className="flex items-center">
-                        Name
-                        <button>
-                          <svg
-                            className="w-3 h-3 ms-1.5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      <div className="flex items-center">
-                        Score
-                        <button>
-                          <svg
-                            className="w-3 h-3 ms-1.5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                          </svg>
-                        </button>
-                      </div>
+                      <div className="flex items-center">Name</div>
                     </th>
                     <th scope="col" className="px-6 py-3">
                       Description
@@ -264,10 +271,8 @@ export default function QuizHistoryDetail() {
                   {data.participants.map((participant, index) => (
                     <ParticipantItem
                       key={crypto.randomUUID()}
-                      id={participant.id}
                       index={index + 1}
                       name={participant.name}
-                      score={participant.score}
                       description={participant.description}
                     />
                   ))}
@@ -283,17 +288,6 @@ export default function QuizHistoryDetail() {
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       No.
-                      <button>
-                        <svg
-                          className="w-3 h-3 ms-1.5"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                        </svg>
-                      </button>
                     </th>
                     <th scope="col" className="px-6 py-3">
                       Question
@@ -305,20 +299,7 @@ export default function QuizHistoryDetail() {
                       Choices
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      <div className="flex items-center">
-                        Difficulty
-                        <button>
-                          <svg
-                            className="w-3 h-3 ms-1.5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                          </svg>
-                        </button>
-                      </div>
+                      <div className="flex items-center">Difficulty</div>
                     </th>
                   </tr>
                 </thead>
@@ -326,7 +307,6 @@ export default function QuizHistoryDetail() {
                   {data.clincher.map((question, index) => (
                     <QuestionItem
                       key={crypto.randomUUID()}
-                      id={question.id}
                       index={index + 1}
                       question={question.question}
                       answer={question.answer}
@@ -339,7 +319,7 @@ export default function QuizHistoryDetail() {
             </div>
           )}
 
-          {activeTab === 3 && (
+          {activeTab === 6 && (
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 mb-8 mt-4">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-100">
@@ -353,6 +333,9 @@ export default function QuizHistoryDetail() {
                     <th scope="col" className="px-6 py-3">
                       Time (Seconds)
                     </th>
+                    <th scope="col" className="px-6 py-3">
+                      No. of Participants
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -363,6 +346,147 @@ export default function QuizHistoryDetail() {
               </table>
             </div>
           )}
+
+          {activeTab === 3 && (
+            <>
+              <div
+                className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 mt-4 max-h-96"
+                id="myTable"
+              >
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        No.
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div className="flex items-center">Name</div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div className="flex items-center">Score</div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Description
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Wins Round
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Wins Clincher
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.easy.participants.map((participant, index) => (
+                      <ParticipantRoundItem
+                        key={crypto.randomUUID()}
+                        index={index + 1}
+                        name={participant.name}
+                        score={participant.score}
+                        description={participant.description}
+                        isWin={participant.isWin}
+                        isClincher={participant.isClincher}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {activeTab === 4 && (
+            <>
+              <div
+                className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 mt-4 max-h-96"
+                id="myTable"
+              >
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        No.
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div className="flex items-center">Name</div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div className="flex items-center">Score</div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Description
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Wins Round
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Wins Clincher
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.average.participants.map((participant, index) => (
+                      <ParticipantRoundItem
+                        key={crypto.randomUUID()}
+                        index={index + 1}
+                        name={participant.name}
+                        score={participant.score}
+                        description={participant.description}
+                        isWin={participant.isWin}
+                        isClincher={participant.isClincher}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {activeTab === 5 && (
+            <>
+              <div
+                className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 mt-4 max-h-96"
+                id="myTable"
+              >
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        No.
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div className="flex items-center">Name</div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div className="flex items-center">Score</div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Description
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Wins Round
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Wins Clincher
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.hard.participants.map((participant, index) => (
+                      <ParticipantRoundItem
+                        key={crypto.randomUUID()}
+                        index={index + 1}
+                        name={participant.name}
+                        score={participant.score}
+                        description={participant.description}
+                        isWin={participant.isWin}
+                        isClincher={participant.isClincher}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </>
       )}
     </section>
@@ -370,7 +494,6 @@ export default function QuizHistoryDetail() {
 }
 
 type QuestionItemProp = {
-  id: number
   index: number
   question: string
   answer: string
@@ -386,35 +509,68 @@ function QuestionItem(props: QuestionItemProp) {
       </th>
       <td className="px-6 py-4 text-gray-800">{props.question}</td>
       <td className="px-6 py-4">{props.answer}</td>
-      <td className="px-6 py-4">{props.choices ? props.choices : '-'}</td>
+      <td className="px-6 py-4">{props.choices?.length ? props.choices : '-'}</td>
       <td className="px-6 py-4">{props.difficulty}</td>
     </tr>
   )
 }
 
 type ParticipantItemProp = {
-  id: number
   index: number
   name: string
   description?: string
-  score: number
 }
 
 function ParticipantItem(props: ParticipantItemProp) {
   return (
-    <tr className="bg-white border-b hover:bg-gray-200">
-      <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+    <tr
+      className={
+        props.index === 1
+          ? 'bg-myBlue-1 text-white hover:bg-myBlue-2 border-b'
+          : 'bg-white border-b hover:bg-gray-200 text-gray-900'
+      }
+    >
+      <th scope="row" className="px-6 py-4 font-medium  whitespace-nowrap">
         {props.index}
       </th>
-      <td className="px-6 py-4 text-gray-800">{props.name}</td>
-      <td className="px-6 py-4">{props.score}</td>
+      <td className="px-6 py-4">{props.name}</td>
       <td className="px-6 py-4">{props.description ? props.description : '-'}</td>
     </tr>
   )
 }
 
+type ParticipantRoundItemProp = {
+  index: number
+  name: string
+  description?: string
+  score: number
+  isWin: boolean
+  isClincher: boolean
+}
+
+function ParticipantRoundItem(props: ParticipantRoundItemProp) {
+  return (
+    <tr
+      className={
+        props.isWin
+          ? 'bg-myBlue-1 text-white hover:bg-myBlue-2 border-b'
+          : 'bg-white border-b hover:bg-gray-200 text-gray-900'
+      }
+    >
+      <th scope="row" className="px-6 py-4 font-medium  whitespace-nowrap">
+        {props.index}
+      </th>
+      <td className="px-6 py-4">{props.name}</td>
+      <td className="px-6 py-4">{props.score}</td>
+      <td className="px-6 py-4">{props.description ? props.description : '-'}</td>
+      <td className="px-6 py-4">{props.isWin ? 'Win' : 'Lose'}</td>
+      <td className="px-6 py-4">{props.isClincher ? 'Wins from clincher' : ''}</td>
+    </tr>
+  )
+}
+
 type SettingItemProp = {
-  data: { difficulty: string; points: number; time: number }
+  data: { difficulty: string; points: number; time: number; number_participants: number }
 }
 
 function SettingItem(props: SettingItemProp) {
@@ -430,6 +586,7 @@ function SettingItem(props: SettingItemProp) {
 
         <td className="px-6 py-4 text-gray-800">{props.data.points}</td>
         <td className="px-6 py-4 text-gray-800">{props.data.time}</td>
+        <td className="px-6 py-4 text-gray-800">{props.data.number_participants}</td>
       </tr>
     </>
   )
