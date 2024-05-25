@@ -3,7 +3,6 @@ import Login from './components/authentication/Login'
 import ProfilePage from './components/authentication/ProfilePage'
 import Register from './components/authentication/Register'
 import { PageLayout } from './components/pages/PageLayout'
-import { QuizRoomLayout } from './components/pages/QuizRoomLayout'
 import QuizHistory from './components/quiz_history/QuizHistory'
 import QuizHistoryDetail from './components/quiz_history/QuizHistoryDetail'
 import QuizHistoryLayout from './components/quiz_history/QuizHistoryLayout'
@@ -11,7 +10,7 @@ import QuizItemDetail from './components/quiz_management/QuizItemDetail'
 import QuizManagement from './components/quiz_management/QuizManagement'
 import QuizManagementLayout from './components/quiz_management/QuizManagementLayout'
 import QuizRoom from './components/quiz_room/QuizRoom'
-import QuizRoomMain from './components/quiz_room/QuizRoomNew'
+import QuizRoomMain from './components/quiz_room/QuizRoomMain'
 import PrivateRoutes from './components/utils/PrivateRoutes'
 
 function App() {
@@ -21,9 +20,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route element={<PrivateRoutes />}>
-          <Route path="/quiz-room/:id" element={<QuizRoomLayout />}>
-            <Route index element={<QuizRoomMain />} />
-          </Route>
+          <Route path="/quiz-room/:id" element={<QuizRoomMain />} />
           <Route path="/" element={<PageLayout />}>
             <Route path="/profile" element={<ProfilePage />} />
             <Route index element={<QuizRoom />} />
