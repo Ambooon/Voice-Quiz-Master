@@ -1,6 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, shell } from 'electron'
-import { MongoClient } from 'mongodb'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 
@@ -21,6 +20,7 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
+    mainWindow.maximize()
     mainWindow.show()
   })
 
