@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { IoIosArrowBack } from 'react-icons/io'
 import { MdNavigateNext } from 'react-icons/md'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import LeaderboardPage from './LeaderboardPage'
@@ -8,22 +9,19 @@ import ScoringPage from './ScoringPage'
 
 export default function QuizRoomMain() {
   const { id } = useParams()
-  // const quizData = QuizData.find((item) => String(item.id) === '1')
-  // const questions = quizData.questions
-  // const participants = quizData.participants.map((participant) => ({
-  //   ...participant,
-  //   score: 0
-  // }))
 
   const [quizData, setQuizData] = useState()
   const [questions, setQuestions] = useState()
   const [participants, setParticipants] = useState()
   const [participantsScore, setParticipantsScore] = useState()
   const [socket, setSocket] = useState()
+
   const [currentPage, setCurrentPage] = useState('start')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isDone, setIsDone] = useState(false)
   const [isClincher, setIsClincher] = useState(false)
+  const [isConfirmExit, setConfirmExit] = useState(false)
+  const [currentRound, setCurrentRound] = useState('easy')
 
   const questionPageRef = useRef()
   const scoringPageRef = useRef()
@@ -72,6 +70,21 @@ export default function QuizRoomMain() {
         score: 0
       }))
       _quizData = { ..._quizData, participants: participants }
+      const easyQuestions = _quizData.questions.filter((question) => {
+        return question.difficulty === 'easy'
+      })
+      const averageQuestions = _quizData.questions.filter((question) => {
+        return question.difficulty === 'average'
+      })
+      const hardQuestions = _quizData.questions.filter((question) => {
+        return question.difficulty === 'hard'
+      })
+      const questions = {
+        easy: easyQuestions,
+        average: averageQuestions,
+        hard: hardQuestions
+      }
+      console.log(questions)
       setQuestions(_quizData.questions)
       setParticipants(participants)
       setParticipantsScore(participants)
@@ -110,91 +123,7 @@ export default function QuizRoomMain() {
       socket.on('Results', (data) => {
         const transcript = data.channel.alternatives[0].transcript
         if (transcript !== '' && data.is_final) {
-          console.log(transcript)
-          if (
-            transcript === 'begin quiz' ||
-            transcript === 'begin please' ||
-            transcript === 'begin with' ||
-            transcript === 'big increase'
-          ) {
-            setCurrentPage('question')
-          } else if (transcript === 'stop quiz') {
-            setIsDone(true)
-            navigate('/')
-          } else if (transcript === 'start timer' || transcript === 'add timer') {
-            questionPageRef.current.start()
-          } else if (
-            transcript === 'show answer' ||
-            transcript === 'no answer' ||
-            transcript === 'show and save'
-          ) {
-            questionPageRef.current.showAnswer()
-          } else if (
-            transcript === 'begin scoring' ||
-            transcript === 'begins scoring' ||
-            transcript === 'begins carding'
-          ) {
-            setCurrentPage('scoring')
-          } else if (
-            transcript === 'finished scoring' ||
-            transcript === 'finish scoring' ||
-            transcript === 'finish starting'
-          ) {
-            finishedScoring()
-          } else if (transcript === 'next question') {
-            nextQuestion()
-          } else if (transcript === 'begin clincher') {
-            setCurrentPage('clincher')
-            setIsClincher(true)
-            setCurrentQuestionIndex(0)
-          } else if (
-            transcript === 'finish quiz' ||
-            transcript === 'finish please' ||
-            transcript === 'finish with'
-          ) {
-            setCurrentPage('ranking')
-            setIsDone(true)
-          }
-          const command = transcript.match(/\b(\w+)\b/g)
-          if (command[0] === 'participant' || command[0] === 'participants') {
-            let id: number
-            if (['want', 'plan', 'point', 'one'].includes(command[1])) {
-              id = 1
-            } else if (['to', 'too', 'two'].includes(command[1])) {
-              id = 2
-            } else if (['tree', 'three'].includes(command[1])) {
-              id = 3
-            } else if (['for', 'four'].includes(command[1])) {
-              id = 4
-            } else if (['file', 'five'].includes(command[1])) {
-              id = 5
-            } else if (['sex', 'six'].includes(command[1])) {
-              id = 6
-            } else if (["haven't", 'seven'].includes(command[1])) {
-              id = 7
-            } else if (['ate', 'eight'].includes(command[1])) {
-              id = 8
-            } else if (['dine', 'nine', 'mine', 'nine'].includes(command[1])) {
-              id = 9
-            } else if (['then', 'ten'].includes(command[1])) {
-              id = 10
-            } else {
-              id = parseInt(command[1])
-            }
-
-            if (typeof id !== 'number') {
-              return
-            }
-            let isCorrect: boolean
-            if (command[2] === 'correct' || command[2] === 'current') {
-              isCorrect = true
-            } else if (command[2] === 'incorrect' || command[2] === 'in correct') {
-              isCorrect = false
-            } else {
-              return
-            }
-            scoringPageRef.current.scoreParticipant(id, isCorrect)
-          }
+          voiceCommand(transcript)
         }
       })
 
@@ -214,11 +143,95 @@ export default function QuizRoomMain() {
         microphoneRef.current?.stop()
         clearInterval(keepAliveIntervalId.current)
         const closeMessage = JSON.stringify({ type: 'CloseStream' })
-        socket.send(closeMessage)
+        socket?.send(closeMessage)
       }
     }
   }, [socket, isDone])
 
+  function voiceCommand(transcript) {
+    console.log(transcript)
+    if (
+      ['begin quiz', 'begin please', 'begin with', 'big increase', 'begins with'].includes(
+        transcript
+      )
+    ) {
+      setCurrentPage('question')
+    } else if (['stop quiz', 'stop please', 'stop with'].includes(transcript)) {
+      setConfirmExit(true)
+    } else if (
+      ['confirm stop quiz', 'confirm stop please', 'confirm stop with'].includes(transcript)
+    ) {
+      console.log('run')
+      setIsDone(true)
+      navigate('/')
+    } else if (
+      ['cancel stop quiz', 'cancel stop please', 'cancel stop with'].includes(transcript)
+    ) {
+      setConfirmExit(false)
+    } else if (['start timer', 'add timer'].includes(transcript)) {
+      questionPageRef?.current.start()
+    } else if (['show answer', 'no answer', 'show and save'].includes(transcript)) {
+      questionPageRef?.current.showAnswer()
+    } else if (['begin scoring', 'begins scoring', 'begins carding'].includes(transcript)) {
+      setCurrentPage('scoring')
+    } else if (['finished scoring', 'finish scoring', 'finish starting'].includes(transcript)) {
+      finishedScoring()
+    } else if (transcript === 'next question') {
+      nextQuestion()
+    } else if (transcript === 'begin clincher') {
+      setCurrentPage('clincher')
+      setIsClincher(true)
+      setCurrentQuestionIndex(0)
+    } else if (
+      ['finish quiz', 'finish please', 'finish with', 'finished quiz', 'finish with'].includes(
+        transcript
+      )
+    ) {
+      setCurrentPage('ranking')
+      setIsDone(true)
+    }
+
+    const command = transcript.match(/\b(\w+)\b/g)
+    if (command[0] === 'participant' || command[0] === 'participants') {
+      let id: number
+      if (['want', 'plan', 'point', 'one'].includes(command[1])) {
+        id = 1
+      } else if (['to', 'too', 'two'].includes(command[1])) {
+        id = 2
+      } else if (['tree', 'three'].includes(command[1])) {
+        id = 3
+      } else if (['for', 'four'].includes(command[1])) {
+        id = 4
+      } else if (['file', 'five'].includes(command[1])) {
+        id = 5
+      } else if (['sex', 'six'].includes(command[1])) {
+        id = 6
+      } else if (["haven't", 'seven'].includes(command[1])) {
+        id = 7
+      } else if (['ate', 'eight'].includes(command[1])) {
+        id = 8
+      } else if (['dine', 'nine', 'mine', 'nine'].includes(command[1])) {
+        id = 9
+      } else if (['then', 'ten'].includes(command[1])) {
+        id = 10
+      } else {
+        id = parseInt(command[1])
+      }
+
+      if (typeof id !== 'number') {
+        return
+      }
+      let isCorrect: boolean
+      if (command[2] === 'correct' || command[2] === 'current' || command[2] === 'connect') {
+        isCorrect = true
+      } else if (command[2] === 'incorrect' || command[2] === 'in correct') {
+        isCorrect = false
+      } else {
+        return
+      }
+      scoringPageRef.current.scoreParticipant(id, isCorrect)
+    }
+  }
   function finishedScoring() {
     scoringPageRef.current.sendScores()
     setCurrentPage('ranking')
@@ -266,6 +279,17 @@ export default function QuizRoomMain() {
     setParticipantsScore(newParticipantsScore)
   }
 
+  function eliminateParticipants(participants) {
+    const sortedParticipantsScore = participants
+    sortedParticipantsScore.sort(compare)
+
+    const numberParticipants = quizData?.settings.find(
+      (setting) => setting.difficulty === currentRound
+    ).number_participants
+    console.log(numberParticipants)
+    // const inParticipants =
+  }
+
   async function createQuizHistory() {
     const date = new Date().toISOString().slice(0, 10)
     const { _id, ..._quizData } = quizData
@@ -277,11 +301,40 @@ export default function QuizRoomMain() {
       console.log(result)
     }
   }
+
   if (currentPage === 'start') {
-    return (
+    return isConfirmExit ? (
+      <div className="w-full h-full flex justify-center items-center text-center">
+        <div className="bg-slate-50 rounded-xl shadow-xl p-8 max-w-md">
+          <p className="font-medium text-4xl mb-12">Are you sure you want to stop quiz?</p>
+          <button
+            className="block text-center px-4 py-2 rounded-lg bg-red-500 text-white mx-auto text-2xl font-semibold mb-4 hover:bg-red-600"
+            onClick={() => {
+              setIsDone(true)
+              navigate('/')
+            }}
+          >
+            Confirm Stop Quiz
+          </button>
+          <button
+            className="block text-center px-4 py-2 rounded-lg bg-slate-200 mx-auto text-2xl font-semibold mb-4 hover:bg-slate-300"
+            onClick={() => setConfirmExit(false)}
+          >
+            Cancel Stop Quiz
+          </button>
+        </div>
+      </div>
+    ) : (
       <>
         <div className="w-full h-full flex justify-center items-center text-center">
           <div>
+            <button
+              onClick={() => setConfirmExit(true)}
+              className="w-fit flex justify-between items-center gap-2 fixed top-0 left-0"
+            >
+              <IoIosArrowBack size={32} />
+              <p className="font-medium">Stop Quiz</p>
+            </button>
             <h1 className="text-6xl font-bold mb-6">
               {socket ? 'Begin Quiz' : 'Voice-activated loading...'}
             </h1>
@@ -296,9 +349,38 @@ export default function QuizRoomMain() {
       </>
     )
   } else if (currentPage === 'question' && !isDone) {
+    eliminateParticipants(participants)
     if (questions.length > currentQuestionIndex) {
-      return (
+      return isConfirmExit ? (
+        <div className="w-full h-full flex justify-center items-center text-center">
+          <div className="bg-slate-50 rounded-xl shadow-xl p-8 max-w-md">
+            <p className="font-medium text-4xl mb-12">Are you sure you want to stop quiz?</p>
+            <button
+              className="block text-center px-4 py-2 rounded-lg bg-red-500 text-white mx-auto text-2xl font-semibold mb-4 hover:bg-red-600"
+              onClick={() => {
+                setIsDone(true)
+                navigate('/')
+              }}
+            >
+              Confirm Stop Quiz
+            </button>
+            <button
+              className="block text-center px-4 py-2 rounded-lg bg-slate-200 mx-auto text-2xl font-semibold mb-4 hover:bg-slate-300"
+              onClick={() => setConfirmExit(false)}
+            >
+              Cancel Stop Quiz
+            </button>
+          </div>
+        </div>
+      ) : (
         <>
+          <button
+            onClick={() => setConfirmExit(true)}
+            className="w-fit flex justify-between items-center gap-2 fixed top-0 left-0"
+          >
+            <IoIosArrowBack size={32} />
+            <p className="font-medium">Stop Quiz</p>
+          </button>
           <div className="w-full flex justify-end items-center p-4">
             <button
               className="flex justify-between items-center"
@@ -317,13 +399,41 @@ export default function QuizRoomMain() {
       )
     } else {
       const sortedParticipantsScore = participantsScore
-      sortedParticipantsScore.sort(compare)
+      sortedParticipantsScore?.sort(compare)
       if (
         sortedParticipantsScore[0].score === sortedParticipantsScore[1].score &&
         sortedParticipantsScore.length > 1
       ) {
-        return (
+        return isConfirmExit ? (
+          <div className="w-full h-full flex justify-center items-center text-center">
+            <div className="bg-slate-50 rounded-xl shadow-xl p-8 max-w-md">
+              <p className="font-medium text-4xl mb-12">Are you sure you want to stop quiz?</p>
+              <button
+                className="block text-center px-4 py-2 rounded-lg bg-red-500 text-white mx-auto text-2xl font-semibold mb-4 hover:bg-red-600"
+                onClick={() => {
+                  setIsDone(true)
+                  navigate('/')
+                }}
+              >
+                Confirm Stop Quiz
+              </button>
+              <button
+                className="block text-center px-4 py-2 rounded-lg bg-slate-200 mx-auto text-2xl font-semibold mb-4 hover:bg-slate-300"
+                onClick={() => setConfirmExit(false)}
+              >
+                Cancel Stop Quiz
+              </button>
+            </div>
+          </div>
+        ) : (
           <>
+            <button
+              onClick={() => setConfirmExit(true)}
+              className="w-fit flex justify-between items-center gap-2 fixed top-0 left-0"
+            >
+              <IoIosArrowBack size={32} />
+              <p className="font-medium">Stop Quiz</p>
+            </button>
             <div className="w-full h-full flex justify-center items-center text-center">
               <div>
                 <h1 className="text-6xl font-bold mb-6">Begin Clincher</h1>
@@ -346,8 +456,36 @@ export default function QuizRoomMain() {
       }
     }
   } else if (currentPage === 'scoring' && !isDone) {
-    return (
+    return isConfirmExit ? (
+      <div className="w-full h-full flex justify-center items-center text-center">
+        <div className="bg-slate-50 rounded-xl shadow-xl p-8 max-w-md">
+          <p className="font-medium text-4xl mb-12">Are you sure you want to stop quiz?</p>
+          <button
+            className="block text-center px-4 py-2 rounded-lg bg-red-500 text-white mx-auto text-2xl font-semibold mb-4 hover:bg-red-600"
+            onClick={() => {
+              setIsDone(true)
+              navigate('/')
+            }}
+          >
+            Confirm Stop Quiz
+          </button>
+          <button
+            className="block text-center px-4 py-2 rounded-lg bg-slate-200 mx-auto text-2xl font-semibold mb-4 hover:bg-slate-300"
+            onClick={() => setConfirmExit(false)}
+          >
+            Cancel Stop Quiz
+          </button>
+        </div>
+      </div>
+    ) : (
       <>
+        <button
+          onClick={() => setConfirmExit(true)}
+          className="w-fit flex justify-between items-center gap-2 fixed top-0 left-0"
+        >
+          <IoIosArrowBack size={32} />
+          <p className="font-medium">Stop Quiz</p>
+        </button>
         <div className="w-full flex justify-between items-center p-4">
           <h1 className="mt-4 mx-4 text-4xl font-bold">Scoring</h1>
           <button className="flex justify-between items-center" onClick={() => finishedScoring()}>
@@ -365,8 +503,36 @@ export default function QuizRoomMain() {
       </>
     )
   } else if (currentPage === 'ranking' && !isDone) {
-    return (
+    return isConfirmExit ? (
+      <div className="w-full h-full flex justify-center items-center text-center">
+        <div className="bg-slate-50 rounded-xl shadow-xl p-8 max-w-md">
+          <p className="font-medium text-4xl mb-12">Are you sure you want to stop quiz?</p>
+          <button
+            className="block text-center px-4 py-2 rounded-lg bg-red-500 text-white mx-auto text-2xl font-semibold mb-4 hover:bg-red-600"
+            onClick={() => {
+              setIsDone(true)
+              navigate('/')
+            }}
+          >
+            Confirm Stop Quiz
+          </button>
+          <button
+            className="block text-center px-4 py-2 rounded-lg bg-slate-200 mx-auto text-2xl font-semibold mb-4 hover:bg-slate-300"
+            onClick={() => setConfirmExit(false)}
+          >
+            Cancel Stop Quiz
+          </button>
+        </div>
+      </div>
+    ) : (
       <>
+        <button
+          onClick={() => setConfirmExit(true)}
+          className="w-fit flex justify-between items-center gap-2 fixed top-0 left-0"
+        >
+          <IoIosArrowBack size={32} />
+          <p className="font-medium">Stop Quiz</p>
+        </button>
         <div className="w-full flex justify-between items-center p-4">
           <h1 className="mt-4 mx-4 text-4xl font-bold">Scores</h1>
           <button className="flex justify-between items-center" onClick={() => nextQuestion()}>
@@ -383,8 +549,36 @@ export default function QuizRoomMain() {
       // if (currentQuestionIndex >= Math.floor(quizData.clincher.length / 2)) {
       //   console.log('run')
       // }
-      return (
+      return isConfirmExit ? (
+        <div className="w-full h-full flex justify-center items-center text-center">
+          <div className="bg-slate-50 rounded-xl shadow-xl p-8 max-w-md">
+            <p className="font-medium text-4xl mb-12">Are you sure you want to stop quiz?</p>
+            <button
+              className="block text-center px-4 py-2 rounded-lg bg-red-500 text-white mx-auto text-2xl font-semibold mb-4 hover:bg-red-600"
+              onClick={() => {
+                setIsDone(true)
+                navigate('/')
+              }}
+            >
+              Confirm Stop Quiz
+            </button>
+            <button
+              className="block text-center px-4 py-2 rounded-lg bg-slate-200 mx-auto text-2xl font-semibold mb-4 hover:bg-slate-300"
+              onClick={() => setConfirmExit(false)}
+            >
+              Cancel Stop Quiz
+            </button>
+          </div>
+        </div>
+      ) : (
         <>
+          <button
+            onClick={() => setConfirmExit(true)}
+            className="w-fit flex justify-between items-center gap-2 fixed top-0 left-0"
+          >
+            <IoIosArrowBack size={32} />
+            <p className="font-medium">Stop Quiz</p>
+          </button>
           <div className="w-full flex justify-end items-center p-4">
             <button
               className="flex justify-between items-center"
@@ -409,7 +603,7 @@ export default function QuizRoomMain() {
     microphoneRef.current?.stop()
     clearInterval(keepAliveIntervalId.current)
     const closeMessage = JSON.stringify({ type: 'CloseStream' })
-    socket.send(closeMessage)
+    socket?.send(closeMessage)
 
     return (
       <>

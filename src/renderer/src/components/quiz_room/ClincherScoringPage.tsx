@@ -9,7 +9,7 @@ type ScoringPageProp = {
   onFinishScoring: (scores: { id: number; isCorrect: boolean }[]) => void
 }
 
-const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
+const ClincherScoringPage = forwardRef((props: ScoringPageProp, ref) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [participants, setParticipants] = useState<any[]>([])
   useEffect(() => {
@@ -78,7 +78,7 @@ const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
   )
 })
 
-ScoringPage.displayName = 'ScoringPage'
+ClincherScoringPage.displayName = 'ClincherScoringPage'
 
 type RankingItemProp = {
   index: number
@@ -114,4 +114,4 @@ function RankingItem(props: RankingItemProp) {
   )
 }
 
-export default ScoringPage
+export default ClincherScoringPage

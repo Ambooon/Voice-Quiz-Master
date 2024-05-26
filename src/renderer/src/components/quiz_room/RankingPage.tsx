@@ -1,9 +1,7 @@
 type RankingPageProp = {
   data: {
     score: number
-    id: number
     name: string
-    description: string
   }[]
 }
 
@@ -14,7 +12,7 @@ export default function RankingPage(props: RankingPageProp) {
         {props.data.map((participant, index) => {
           return (
             <RankingItem
-              key={index}
+              key={crypto.randomUUID()}
               index={index + 1}
               name={participant.name}
               score={participant.score}

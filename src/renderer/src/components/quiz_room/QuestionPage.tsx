@@ -11,6 +11,7 @@ type QuestionPageProp = {
         choices?: string[]
       }
     | undefined
+  questionNo: number
   settings: {
     difficulty: string
     points: number
@@ -102,16 +103,20 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
   })
 
   return (
-    <div className="p-4 h-full w-full">
+    <div className="p-4 h-full w-full relative">
       {!isAnswer ? (
         <>
+          <div className="fixed top-12 left-4">
+            <p className="font-bold text-2xl capitalize">{props.data?.difficulty} round</p>
+            <p className="font-medium text-lg">Question No. {props.questionNo}</p>
+          </div>
           <div className="flex justify-center items-center gap-4 ">
             <p className="text-center font-bold text-2xl mb-2">{timer}</p>
             <button className="text-myBlue-1 hover:text-myBlue-2" onClick={() => start()}>
               <FaPlay />
             </button>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto mb-12">
+          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto mb-6">
             {/* <div className={'bg-blue-600 h-2.5 rounded-full'}></div> */}
             <div
               className="bg-blue-600 h-2.5 rounded-full"
@@ -124,8 +129,8 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
           <h1 className="font-bold text-4xl text-center mb-12">{props.data.question}</h1>
           <div>
             {props.data.choices &&
-              props.data.choices.map((choice, index) => {
-                return <Choice key={index} text={choice} />
+              props.data.choices.map((choice) => {
+                return <Choice key={crypto.randomUUID()} text={choice} />
               })}
           </div>
         </>

@@ -1,35 +1,19 @@
 type RankingPageProp = {
   data: {
     score: number
-    id: number
     name: string
-    description: string
   }[]
 }
 
 export default function LeaderboardPage(props: RankingPageProp) {
-  function compare(a: { score: number }, b: { score: number }) {
-    if (a.score < b.score) {
-      return 1
-    }
-    if (a.score > b.score) {
-      return -1
-    }
-    return 0
-  }
-
-  props.data.sort(compare)
-  if (props.data[0].score === props.data[1].score) {
-    console.log('clincher time')
-  }
-
   return (
     <div className="max-h-screen">
       <div className="max-w-sm mx-auto">
+        <h1 className="text-center text-6xl font-bold mb-4 ">Winner</h1>
         {props.data.map((participant, index) => {
           return (
             <RankingItem
-              key={index}
+              key={crypto.randomUUID()}
               index={index + 1}
               name={participant.name}
               score={participant.score}
