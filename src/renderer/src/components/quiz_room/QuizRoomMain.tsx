@@ -172,46 +172,100 @@ export default function QuizRoomMain() {
 
   function voiceCommand(transcript) {
     console.log(transcript)
+    const command = transcript.match(/\b(\w+)\b/g)
+    if (command[0] === 'participant' || command[0] === 'participants') {
+      let id: number
+      if (new Set(['want', 'plan', 'point', 'one']).has(command[1])) {
+        id = 1
+      } else if (new Set(['to', 'too', 'two']).has(command[1])) {
+        id = 2
+      } else if (new Set(['tree', 'three']).has(command[1])) {
+        id = 3
+      } else if (new Set(['for', 'four']).has(command[1])) {
+        id = 4
+      } else if (new Set(['file', 'five']).has(command[1])) {
+        id = 5
+      } else if (new Set(['sex', 'six']).has(command[1])) {
+        id = 6
+      } else if (new Set(["haven't", 'seven']).has(command[1])) {
+        id = 7
+      } else if (new Set(['ate', 'eight']).has(command[1])) {
+        id = 8
+      } else if (new Set(['dine', 'nine', 'mine', 'nine']).has(command[1])) {
+        id = 9
+      } else if (new Set(['then', 'ten']).has(command[1])) {
+        id = 10
+      } else {
+        id = parseInt(command[1])
+      }
+
+      if (typeof id !== 'number') {
+        return
+      }
+      let isCorrect: boolean
+      if (new Set(['correct', 'current', 'connect']).has(command[2])) {
+        isCorrect = true
+      } else if (new Set(['incorrect', 'in correct']).has(command[2])) {
+        isCorrect = false
+      } else {
+        return
+      }
+      if (currentPageRef.current === 'scoring') {
+        scoringPageRef.current.scoreParticipant(id, isCorrect)
+      } else if (currentPageRef.current === 'clincherScoring') {
+        scoringClincherPageRef?.current.scoreParticipant(id, isCorrect)
+      }
+    }
+
     if (
-      ['begin quiz', 'begin please', 'begin with', 'big increase', 'begins with'].includes(
+      new Set(['begin quiz', 'begin please', 'begin with', 'big increase', 'begins with']).has(
         transcript
       ) &&
       currentPageRef.current === 'start'
     ) {
       setCurrentPage('question')
-    } else if (['stop quiz', 'stop please', 'stop with'].includes(transcript)) {
+    } else if (new Set(['stop quiz', 'stop please', 'stop with']).has(transcript)) {
       setConfirmExit(true)
     } else if (
-      ['confirm stop quiz', 'confirm stop please', 'confirm stop with'].includes(transcript) &&
+      new Set(['confirm stop quiz', 'confirm stop please', 'confirm stop with']).has(transcript) &&
       isConfirmExitRef.current
     ) {
       setIsDone(true)
       navigate('/')
     } else if (
-      ['cancel stop quiz', 'cancel stop please', 'cancel stop with'].includes(transcript) &&
+      new Set(['cancel stop quiz', 'cancel stop please', 'cancel stop with']).has(transcript) &&
       isConfirmExitRef.current
     ) {
       setConfirmExit(false)
     } else if (
-      ['start timer', 'add timer'].includes(transcript) &&
+      new Set(['start timer', 'add timer']).has(transcript) &&
       (currentPageRef.current === 'question' || currentPageRef.current === 'clincherQuestion')
     ) {
       questionPageRef?.current?.start()
     } else if (
-      ['show answer', 'no answer', 'show and save'].includes(transcript) &&
+      new Set(['show answer', 'no answer', 'show and save']).has(transcript) &&
       (currentPageRef.current === 'question' || currentPageRef.current === 'clincherQuestion')
     ) {
       questionPageRef?.current?.showAnswer()
-    } else if (['begin scoring', 'begins scoring', 'begins carding'].includes(transcript)) {
+    } else if (new Set(['begin scoring', 'begins scoring', 'begins carding']).has(transcript)) {
       if (currentPageRef.current === 'question') {
         setCurrentPage('scoring')
       } else if (currentPageRef.current === 'clincherQuestion') {
         setCurrentPage('clincherScoring')
       }
     } else if (
-      ['finished scoring', 'finish scoring', 'finish starting', 'spanish scoring'].includes(
-        transcript
-      )
+      new Set([
+        'finished scoring',
+        'finish scoring',
+        'finish starting',
+        'spanish scoring',
+        'famous scoring',
+        'femish scoring',
+        'femenish scoring',
+        'image scoring',
+        'famesh scoring',
+        'english scoring'
+      ]).has(transcript)
     ) {
       finishedScoring()
     } else if (transcript === 'next question') {
@@ -220,7 +274,10 @@ export default function QuizRoomMain() {
       } else if (currentPageRef.current === 'elimination') {
         setCurrentPage('question')
       }
-    } else if (transcript === 'start clincher' && currentPageRef.current === 'clincher') {
+    } else if (
+      new Set(['start clincher', 'start clean share']).has(transcript) &&
+      currentPageRef.current === 'clincher'
+    ) {
       setCurrentPage('clincherQuestion')
     } else if (transcript === 'next round' || transcript === 'x round') {
       // currentPage is roundEnd
@@ -236,62 +293,17 @@ export default function QuizRoomMain() {
         }
       }
     } else if (
-      [
+      new Set([
         'finish quiz',
         'finish please',
         'finish with',
         'finished quiz',
         'finish with',
         'spanish quiz'
-      ].includes(transcript)
+      ]).has(transcript)
     ) {
       setCurrentPage('ranking')
       setIsDone(true)
-    }
-
-    const command = transcript.match(/\b(\w+)\b/g)
-    if (command[0] === 'participant' || command[0] === 'participants') {
-      let id: number
-      if (['want', 'plan', 'point', 'one'].includes(command[1])) {
-        id = 1
-      } else if (['to', 'too', 'two'].includes(command[1])) {
-        id = 2
-      } else if (['tree', 'three'].includes(command[1])) {
-        id = 3
-      } else if (['for', 'four'].includes(command[1])) {
-        id = 4
-      } else if (['file', 'five'].includes(command[1])) {
-        id = 5
-      } else if (['sex', 'six'].includes(command[1])) {
-        id = 6
-      } else if (["haven't", 'seven'].includes(command[1])) {
-        id = 7
-      } else if (['ate', 'eight'].includes(command[1])) {
-        id = 8
-      } else if (['dine', 'nine', 'mine', 'nine'].includes(command[1])) {
-        id = 9
-      } else if (['then', 'ten'].includes(command[1])) {
-        id = 10
-      } else {
-        id = parseInt(command[1])
-      }
-
-      if (typeof id !== 'number') {
-        return
-      }
-      let isCorrect: boolean
-      if (command[2] === 'correct' || command[2] === 'current' || command[2] === 'connect') {
-        isCorrect = true
-      } else if (command[2] === 'incorrect' || command[2] === 'in correct') {
-        isCorrect = false
-      } else {
-        return
-      }
-      if (currentPageRef.current === 'scoring') {
-        scoringPageRef.current.scoreParticipant(id, isCorrect)
-      } else if (currentPageRef.current === 'clincherScoring') {
-        scoringClincherPageRef?.current.scoreParticipant(id, isCorrect)
-      }
     }
   }
 
