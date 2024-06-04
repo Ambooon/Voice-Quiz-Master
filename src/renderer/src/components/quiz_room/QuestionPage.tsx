@@ -107,7 +107,9 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
       {!isAnswer ? (
         <>
           <div className="fixed top-12 left-4">
-            <p className="font-bold text-2xl capitalize">{props.data?.difficulty} round</p>
+            <p className="font-bold text-2xl capitalize">
+              {props.data?.difficulty === 'hard' ? 'difficult' : props.data?.difficulty} round
+            </p>
             <p className="font-medium text-lg">Question No. {props.questionNo}</p>
           </div>
           <div className="flex justify-center items-center gap-4 ">

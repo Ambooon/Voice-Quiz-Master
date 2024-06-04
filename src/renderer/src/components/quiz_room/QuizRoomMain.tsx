@@ -745,7 +745,9 @@ export default function QuizRoomMain() {
               <IoIosArrowBack size={32} />
               <p className="font-medium">Stop Quiz</p>
             </button>
-            <h1 className="text-6xl font-bold mb-6 capitalize">{currentRound} Round Finished</h1>
+            <h1 className="text-6xl font-bold mb-6 capitalize">
+              {currentRound === 'hard' ? 'difficult' : currentRound} Round Finished
+            </h1>
           </div>
         </div>
       </>

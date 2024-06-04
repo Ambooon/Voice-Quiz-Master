@@ -11,7 +11,7 @@ const tabs = [
   'Clinchers',
   'Easy Round',
   'Average Round',
-  'Hard Round',
+  'Difficult Round',
   'Settings'
 ]
 
@@ -143,7 +143,7 @@ export default function QuizHistoryDetail() {
       body: average
     })
     finalY = doc.lastAutoTable.finalY
-    doc.text('Hard Round', 14, finalY + 15)
+    doc.text('Difficult Round', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
       head: [['Name', 'Description', 'Points', 'Wins Round', 'Wins Clincher']],
@@ -510,7 +510,7 @@ function QuestionItem(props: QuestionItemProp) {
       <td className="px-6 py-4 text-gray-800">{props.question}</td>
       <td className="px-6 py-4">{props.answer}</td>
       <td className="px-6 py-4">{props.choices?.length ? props.choices : '-'}</td>
-      <td className="px-6 py-4">{props.difficulty}</td>
+      <td className="px-6 py-4">{props.difficulty === 'hard' ? 'difficult' : props.difficulty}</td>
     </tr>
   )
 }
@@ -581,7 +581,7 @@ function SettingItem(props: SettingItemProp) {
           scope="row"
           className="capitalize px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex justify-between items-center"
         >
-          {props.data.difficulty}
+          {props.data.difficulty === 'hard' ? 'difficult' : props.data.difficulty}
         </th>
 
         <td className="px-6 py-4 text-gray-800">{props.data.points}</td>

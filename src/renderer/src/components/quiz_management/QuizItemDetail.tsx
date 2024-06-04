@@ -113,6 +113,7 @@ export default function QuizItemDetail() {
     // arr[0] = b
     // // arr = [arr[0], arr[1]] = [arr[1], arr[0]]
     // console.log(arr)
+    return
   }
 
   function onChangeSettings(data: {
@@ -593,7 +594,7 @@ function SettingItem(props: SettingItemProp) {
           scope="row"
           className="capitalize px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex justify-between items-center"
         >
-          {settingsData.difficulty}
+          {settingsData.difficulty === 'hard' ? 'difficult' : settingsData.difficulty}
         </th>
         {isEdit ? (
           <>
@@ -764,7 +765,7 @@ function QuestionItem(props: QuestionItemProp) {
               >
                 <option value="easy">Easy</option>
                 <option value="average">Average</option>
-                <option value="hard">Hard</option>
+                <option value="hard">Difficult</option>
               </select>
             </td>
             <td className="py-4 flex justify-center items-center gap-4">
@@ -783,7 +784,9 @@ function QuestionItem(props: QuestionItemProp) {
             <td className="px-6 py-4">
               {questionData.choices?.length ? questionData.choices : '-'}
             </td>
-            <td className="px-6 py-4">{questionData.difficulty}</td>
+            <td className="px-6 py-4">
+              {questionData.difficulty === 'hard' ? 'difficult' : questionData.difficulty}
+            </td>
             <td className="py-4 flex justify-center items-center gap-4">
               <button onClick={() => setIsEdit((prev) => !prev)}>
                 <MdEdit size={20} className="text-slate-800" />
