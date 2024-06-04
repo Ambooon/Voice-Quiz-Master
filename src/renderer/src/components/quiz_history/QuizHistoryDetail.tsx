@@ -61,7 +61,7 @@ export default function QuizHistoryDetail() {
           if (index === 3) {
             return item === true ? 'Wins' : 'Lose'
           } else if (index === 4) {
-            return item === true ? 'Wins from clincher' : ''
+            return item === true ? 'Qualified from clincher' : ''
           }
           return String(item)
         })
@@ -75,7 +75,7 @@ export default function QuizHistoryDetail() {
           if (index === 3) {
             return item === true ? 'Wins' : 'Lose'
           } else if (index === 4) {
-            return item === true ? 'Wins from clincher' : ''
+            return item === true ? 'Qualified from clincher' : ''
           }
           return String(item)
         })
@@ -480,6 +480,7 @@ export default function QuizHistoryDetail() {
                         description={participant.description}
                         isWin={participant.isWin}
                         isClincher={participant.isClincher}
+                        isHard={true}
                       />
                     ))}
                   </tbody>
@@ -546,6 +547,7 @@ type ParticipantRoundItemProp = {
   score: number
   isWin: boolean
   isClincher: boolean
+  isHard?: boolean
 }
 
 function ParticipantRoundItem(props: ParticipantRoundItemProp) {
@@ -564,7 +566,9 @@ function ParticipantRoundItem(props: ParticipantRoundItemProp) {
       <td className="px-6 py-4">{props.score}</td>
       <td className="px-6 py-4">{props.description ? props.description : '-'}</td>
       <td className="px-6 py-4">{props.isWin ? 'Win' : 'Lose'}</td>
-      <td className="px-6 py-4">{props.isClincher ? 'Wins from clincher' : ''}</td>
+      <td className="px-6 py-4">
+        {props.isClincher ? `${props.isHard ? 'Wins' : 'Qualified'} from clincher` : ''}
+      </td>
     </tr>
   )
 }
