@@ -39,7 +39,7 @@ function RankingItem(props: RankingItemProp) {
       <p className="font-medium">
         {props.index}. {props.name}
       </p>
-      <p>{props.score} pts</p>
+      {/* <p>{props.score} pts</p> */}
     </div>
   )
 }

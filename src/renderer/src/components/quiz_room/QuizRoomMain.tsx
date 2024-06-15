@@ -215,9 +215,7 @@ export default function QuizRoomMain() {
       } else if (currentPageRef.current === 'clincherScoring') {
         scoringClincherPageRef?.current.scoreParticipant(id, isCorrect)
       }
-    }
-
-    if (
+    } else if (
       new Set(['begin quiz', 'begin please', 'begin with', 'big increase', 'begins with']).has(
         transcript
       ) &&
@@ -306,7 +304,22 @@ export default function QuizRoomMain() {
       setIsDone(true)
     }
   }
+  // function voiceCommand2(transcript) {
+  //   const command = transcript.match(/\b(\w+)\b/g)
 
+  //   switch (command) {
+  //     case 'participant':
+  //     case 'participants':
+  //       break
+
+  //     case 'begin quiz':
+  //     case 'begin please':
+  //     case 'begin with':
+  //     case 'big increase':
+  //     case 'begins with':
+
+  //   }
+  // }
   function finishedScoring() {
     if (currentPageRef.current === 'scoring') {
       scoringPageRef?.current.sendScores()
@@ -317,10 +330,6 @@ export default function QuizRoomMain() {
   }
 
   function eliminateParticipants(scores) {
-    console.log(historyData)
-    console.log(currentRound)
-    console.log(historyDataRef.current)
-    console.log(currentRoundRef.current)
     const correctScores = scores
       .filter((score) => score.isCorrect === true)
       .map((score) => {
@@ -366,10 +375,18 @@ export default function QuizRoomMain() {
         }
       }))
     } else {
-      const addToParticipants = [...clincherWinners, ...correctParticipants]
+      // Remove this to not reset the scores into 0
+      const addToParticipants = [
+        ...quizData.participants,
+        ...clincherWinners,
+        ...correctParticipants
+      ].map((participant) => {
+        return { ...participant, score: 0 }
+      })
+      //
       setQuizData((prev) => ({
         ...prev,
-        participants: [...prev.participants, ...addToParticipants]
+        participants: [...addToParticipants]
       }))
       setClincherWinners((prev) => [...prev, ...correctParticipants])
       setClincherParticipants([])
@@ -418,6 +435,7 @@ export default function QuizRoomMain() {
     setCurrentPage('question')
     setCurrentQuestionIndex((prev) => prev + 1)
   }
+
   function endRound() {
     let number_participants
     if (currentRoundRef.current === 'easy') {
@@ -477,14 +495,18 @@ export default function QuizRoomMain() {
       if (currentRoundRef.current === 'hard') {
         setQuizData((prev) => ({ ...prev, participants: inParticipants }))
         setIsDone(true)
-
         setCurrentQuestionIndex(0)
       } else {
-        setQuizData((prev) => ({ ...prev, participants: inParticipants }))
+        // Remove this to not reset the scores into 0
+        const resetParticipants = inParticipants.map((participant) => {
+          return { ...participant, score: 0 }
+        })
+        //
+        setQuizData((prev) => ({ ...prev, participants: resetParticipants }))
         setCurrentPage('elimination')
         setCurrentQuestionIndex(0)
       }
-      // save the easy round data in state
+
       inParticipants = inParticipants.map((participant) => ({
         ...participant,
         isWin: true,
