@@ -88,6 +88,7 @@ export default function QuizRoomMain() {
         title: _quizData.title,
         description: _quizData.description,
         settings: _quizData.settings,
+        scoring_type: _quizData.scoring_type,
         date: new Date().toISOString().slice(0, 10),
         questions: _quizData.questions,
         participants: _quizData.participants,
@@ -383,14 +384,20 @@ export default function QuizRoomMain() {
         }
       }))
     } else {
-      // Remove this to not reset the scores into 0
+      // Accumulate
       const addToParticipants = [
         ...quizData.participants,
         ...clincherWinners,
         ...correctParticipants
-      ].map((participant) => {
-        return { ...participant, score: 0 }
-      })
+      ]
+      // Reset scores to 0 per round
+      // const addToParticipants = [
+      //   ...quizData.participants,
+      //   ...clincherWinners,
+      //   ...correctParticipants
+      // ].map((participant) => {
+      //   return { ...participant, score: 0 }
+      // })
       //
       setQuizData((prev) => ({
         ...prev,
@@ -431,8 +438,15 @@ export default function QuizRoomMain() {
     const newParticipants = quizData.participants.map((participant, index) => {
       const score = scores.find((score) => score.id === index)
       if (score?.isCorrect) {
-        const points = quizData?.settings.find((setting) => setting.difficulty === currentRound)
-        participant.score += points.points
+        const setting = quizData?.settings.find((setting) => setting.difficulty === currentRound)
+        participant.score += setting.points
+      } else {
+        const setting = quizData?.settings.find((setting) => setting.difficulty === currentRound)
+        // revision
+        // scoring_type is not in the setting.difficulty
+        if (quizData?.scoring_type === 'partial') {
+          participant.score += setting.partial_points
+        }
       }
       return participant
     })
@@ -505,12 +519,16 @@ export default function QuizRoomMain() {
         setIsDone(true)
         setCurrentQuestionIndex(0)
       } else {
-        // Remove this to not reset the scores into 0
-        const resetParticipants = inParticipants.map((participant) => {
-          return { ...participant, score: 0 }
-        })
-        //
-        setQuizData((prev) => ({ ...prev, participants: resetParticipants }))
+        // revision
+        let newParticipants
+        if (quizData?.scoring_type === 'accumulate' || quizData.scoring_type === 'partial') {
+          newParticipants = inParticipants
+        } else if (quizData?.scoring_type === 'perround') {
+          newParticipants = inParticipants.map((participant) => {
+            return { ...participant, score: 0 }
+          })
+        }
+        setQuizData((prev) => ({ ...prev, participants: newParticipants }))
         setCurrentPage('elimination')
         setCurrentQuestionIndex(0)
       }
@@ -544,10 +562,7 @@ export default function QuizRoomMain() {
 
   async function createQuizHistory() {
     // const _historyData = { ...historyData, participants: scoreParticipants }
-    const result = await window.api.createQuizHistory(historyData)
-    if (result) {
-      console.log(result)
-    }
+    await window.api.createQuizHistory(historyData)
   }
 
   if (currentPage === 'start') {

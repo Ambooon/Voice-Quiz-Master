@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// eslint-disable @typescript-eslint/no-explicit-any
+// @ts-nocheck
 import { useEffect, useState } from 'react'
 import { FaCheck, FaPlay } from 'react-icons/fa'
 import { ImCross } from 'react-icons/im'
@@ -7,30 +9,6 @@ import { MdDelete, MdEdit } from 'react-icons/md'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 
 const tabs = ['Questions', 'Participants', 'Clincher Questions', 'Settings']
-// type QuizDataType = {
-//   id: string
-//   title: string
-//   user: string
-//   date: string
-//   description: string
-//   settings: { difficulty: string; points: number; time: number }[]
-//   questions: {
-//     question: string
-//     answer: string
-//     difficulty: string
-//     choices?: string[]
-//   }
-//   participants: {
-//     name: string
-//     description?: string
-//   }
-//   clincher: {
-//     question: string
-//     answer: string
-//     difficulty: string
-//     choices?: string[]
-//   }
-// }[]
 
 export default function QuizItemDetail() {
   const { id } = useParams()
@@ -40,6 +18,7 @@ export default function QuizItemDetail() {
   const [isEdit, setIsEdit] = useState(false)
   const [isCreate, setIsCreate] = useState(false)
   const navigate = useNavigate()
+
   useEffect(() => {
     async function getQuiz() {
       setQuizData(await window.api.getQuiz(id))
@@ -50,18 +29,25 @@ export default function QuizItemDetail() {
       setIsCreate(true)
       const _data = {
         title: 'Quiz Title',
-        // change this user later, get it from logged user
         user: sessionStorage.getItem('username'),
         date: new Date().toISOString().slice(0, 10),
         description: 'Quiz Description',
+        scoring_type: 'accumulate',
         settings: [
-          { difficulty: 'easy', points: 2, time: 15, number_participants: 10 },
-          { difficulty: 'average', points: 5, time: 25, number_participants: 10 },
-          { difficulty: 'hard', points: 10, time: 35, number_participants: 10 },
+          { difficulty: 'easy', points: 2, partial_points: 0, time: 15, number_participants: 10 },
+          {
+            difficulty: 'average',
+            points: 5,
+            partial_points: 0,
+            time: 25,
+            number_participants: 10
+          },
+          { difficulty: 'hard', points: 10, partial_points: 0, time: 35, number_participants: 10 },
           { difficulty: 'clincher', time: 35 }
         ],
         questions: [
           {
+            image: '',
             question: 'Question 1',
             answer: 'Answer 1',
             choices: ['Choice 1', 'Choice 2'],
@@ -70,6 +56,7 @@ export default function QuizItemDetail() {
         ],
         clincher: [
           {
+            image: '',
             question: 'Question 1',
             answer: 'Answer 1',
             choices: ['Choice 1', 'Choice 2'],
@@ -90,7 +77,6 @@ export default function QuizItemDetail() {
   }
 
   async function onSaveChanges() {
-    // update the current state 'quizData' into the database
     if (id === 'create') {
       const result = await window.api.createQuiz(quizData)
       if (result) {
@@ -100,20 +86,6 @@ export default function QuizItemDetail() {
       window.api.updateQuiz(id, quizData)
       window.location.reload()
     }
-  }
-
-  function onChangeOrder(_index: number, _isUp: boolean, _page: string) {
-    // const newQuizData = {
-    //   ...quizData,
-    //   [page]: [quizData?.questions[index], quizData?.questions[index + 1]]
-    // }
-    // const arr = [1, 2, 3, 4]
-    // const b = arr[1]
-    // arr[1] = arr[0]
-    // arr[0] = b
-    // // arr = [arr[0], arr[1]] = [arr[1], arr[0]]
-    // console.log(arr)
-    return
   }
 
   function onChangeSettings(data: {
@@ -346,6 +318,9 @@ export default function QuizItemDetail() {
                         No.
                       </th>
                       <th scope="col" className="px-6 py-3">
+                        Image
+                      </th>
+                      <th scope="col" className="px-6 py-3">
                         Question
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -385,15 +360,13 @@ export default function QuizItemDetail() {
                         <QuestionItem
                           key={crypto.randomUUID()}
                           index={index + 1}
+                          image={question.image}
                           question={question.question}
                           answer={question.answer}
                           choices={question.choices}
                           difficulty={question.difficulty}
                           onChangeQuestionQuiz={(data) => onChangeQuestionQuiz(data, index)}
                           onDelete={() => onDeleteQuestionQuiz(index)}
-                          onChangeOrder={(index: number, isUp: boolean, page: string) =>
-                            onChangeOrder(index, isUp, page)
-                          }
                         />
                       ))}
                   </tbody>
@@ -435,9 +408,6 @@ export default function QuizItemDetail() {
                           description={participant.description}
                           onChangeParticipantQuiz={(data) => onChangeParticipantQuiz(data, index)}
                           onDelete={() => onDeleteParticipantQuiz(index)}
-                          onChangeOrder={(index: number, isUp: boolean, page: string) =>
-                            onChangeOrder(index, isUp, page)
-                          }
                         />
                       ))}
                   </tbody>
@@ -459,6 +429,9 @@ export default function QuizItemDetail() {
                     <tr>
                       <th scope="col" className="px-6 py-3">
                         No.
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Image
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Question
@@ -500,15 +473,13 @@ export default function QuizItemDetail() {
                         <ClincherItem
                           key={crypto.randomUUID()}
                           index={index + 1}
+                          image={question.image}
                           question={question.question}
                           answer={question.answer}
                           choices={question.choices}
                           difficulty={question.difficulty}
                           onChangeClincherQuiz={(data) => onChangeClincherQuiz(data, index)}
                           onDelete={() => onDeleteClincherQuiz(index)}
-                          onChangeOrder={(index: number, isUp: boolean, page: string) =>
-                            onChangeOrder(index, isUp, page)
-                          }
                         />
                       ))}
                   </tbody>
@@ -519,7 +490,21 @@ export default function QuizItemDetail() {
 
           {activeTab === 3 && (
             <>
-              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8 my-10">
+              <label htmlFor="scoring_type">Scoring Type: </label>
+              <select
+                name="scoring_type"
+                id="scoring_type"
+                className="px-1 border border-slate-800 rounded-sm mt-8 mb-4"
+                value={quizData.scoring_type}
+                onChange={(e) => {
+                  setQuizData((prev) => ({ ...prev, scoring_type: e.target.value }))
+                }}
+              >
+                <option value="accumulate">Accumulate</option>
+                <option value="perround">Per Round</option>
+                <option value="partial">Partial</option>
+              </select>
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
@@ -528,6 +513,28 @@ export default function QuizItemDetail() {
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Points
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 flex justify-start items-center gap-2 relative"
+                      >
+                        Partial Points
+                        <IoIosHelpCircleOutline
+                          size={20}
+                          className="hover:cursor-help"
+                          onMouseEnter={() => {
+                            document.getElementById('choices-tooltip')?.classList.remove('hidden')
+                          }}
+                          onMouseLeave={() => {
+                            document.getElementById('choices-tooltip')?.classList.add('hidden')
+                          }}
+                        />
+                        <div
+                          id="choices-tooltip"
+                          className="hidden bg-slate-50 rounded-md shadow-sm p-2 w-24 absolute top-2 left-36 capitalize font-normal"
+                        >
+                          <p>{'This is for Partial Scoring'}</p>
+                        </div>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Timer (Seconds)
@@ -613,6 +620,23 @@ function SettingItem(props: SettingItemProp) {
             ) : (
               <td className="px-6 py-4 text-gray-800">-</td>
             )}
+
+            {settingsData.difficulty !== 'clincher' ? (
+              <td className="px-6 py-4 text-gray-800">
+                <input
+                  className="px-1 border border-slate-800 rounded-sm w-20"
+                  type="number"
+                  name="partial_points"
+                  value={settingsData.partial_points}
+                  onChange={(e) =>
+                    setSettingsData((prev) => ({ ...prev, partial_points: Number(e.target.value) }))
+                  }
+                />
+              </td>
+            ) : (
+              <td className="px-6 py-4 text-gray-800">-</td>
+            )}
+
             <td className="px-6 py-4 text-gray-800">
               <input
                 className="px-1 border border-slate-800 rounded-sm w-20"
@@ -656,6 +680,9 @@ function SettingItem(props: SettingItemProp) {
             <td className="px-6 py-4 text-gray-800">
               {settingsData.points ? settingsData.points : '-'}
             </td>
+            <td className="px-6 py-4 text-gray-800">
+              {settingsData.partial_points ? settingsData.partial_points : '-'}
+            </td>
             <td className="px-6 py-4 text-gray-800">{settingsData.time}</td>
             <td className="px-6 py-4 text-gray-800">
               {settingsData.number_participants ? settingsData.number_participants : '-'}
@@ -674,6 +701,7 @@ function SettingItem(props: SettingItemProp) {
 
 type QuestionItemProp = {
   index: number
+  image: string
   question: string
   answer: string
   choices?: string[]
@@ -685,7 +713,6 @@ type QuestionItemProp = {
     difficulty: string
   }) => void
   onDelete: () => void
-  onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
 
 function QuestionItem(props: QuestionItemProp) {
@@ -716,17 +743,21 @@ function QuestionItem(props: QuestionItemProp) {
       <tr className="border-b">
         <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap ">
           {questionData.index}
-          {/* <div className="flex flex-col justify-center items-center">
-            <button onClick={() => props.onChangeOrder(props.index - 1, true, 'questions')}>
-              <MdOutlineArrowDropUp size={20} />
-            </button>
-            <button onClick={() => props.onChangeOrder(props.index - 1, false, 'questions')}>
-              <MdOutlineArrowDropDown size={20} />
-            </button>
-          </div> */}
         </th>
         {isEdit ? (
           <>
+            <td className="px-6 py-4 text-gray-800">
+              <input
+                // className="px-1 border border-slate-800 rounded-sm w-20"
+                type="file"
+                label="Image"
+                name="image"
+                id="image"
+                accept=".jpeg, .png, .jpg"
+                value={questionData.image}
+                onChange={onHandleChange}
+              />
+            </td>
             <td className="px-6 py-4 text-gray-800">
               <input
                 className="px-1 border border-slate-800 rounded-sm w-20"
@@ -779,6 +810,9 @@ function QuestionItem(props: QuestionItemProp) {
           </>
         ) : (
           <>
+            <td className="px-6 py-4 text-gray-800">
+              {questionData.image ? <img src={questionData.image} alt="question-image" /> : ''}
+            </td>
             <td className="px-6 py-4 text-gray-800">{questionData.question}</td>
             <td className="px-6 py-4">{questionData.answer}</td>
             <td className="px-6 py-4">
@@ -808,7 +842,6 @@ type ParticipantItemProp = {
   description?: string
   onChangeParticipantQuiz: (data: { name: string; description?: string }) => void
   onDelete: () => void
-  onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
 
 function ParticipantItem(props: ParticipantItemProp) {
@@ -893,6 +926,7 @@ function ParticipantItem(props: ParticipantItemProp) {
 
 type ClincherItemProp = {
   index: number
+  image: string
   question: string
   answer: string
   choices?: string[]
@@ -904,7 +938,6 @@ type ClincherItemProp = {
     difficulty: string
   }) => void
   onDelete: () => void
-  onChangeOrder: (index: number, isUp: boolean, page: string) => void
 }
 
 function ClincherItem(props: ClincherItemProp) {
@@ -937,14 +970,6 @@ function ClincherItem(props: ClincherItemProp) {
           className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex justify-between items-center"
         >
           {clincherData.index}
-          {/* <div className="flex flex-col justify-center items-center">
-            <button onClick={() => props.onChangeOrder(props.index - 1, true, 'questions')}>
-              <MdOutlineArrowDropUp size={20} />
-            </button>
-            <button onClick={() => props.onChangeOrder(props.index - 1, false, 'questions')}>
-              <MdOutlineArrowDropDown size={20} />
-            </button>
-          </div> */}
         </th>
         {isEdit ? (
           <>

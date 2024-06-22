@@ -320,31 +320,37 @@ export default function QuizHistoryDetail() {
           )}
 
           {activeTab === 6 && (
-            <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 mb-8 mt-4">
-              <table className="w-full text-sm text-left rtl:text-right text-gray-500">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-                  <tr>
-                    <th scope="col" className="px-6 py-3">
-                      Difficulty
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Points
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Time (Seconds)
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      No. of Participants
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.settings.map((setting) => (
-                    <SettingItem key={crypto.randomUUID()} data={setting} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <>
+              <p className="mt-8 mb-4 capitalize">Scoring Type: {data.scoring_type}</p>
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        Difficulty
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Points
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Partial Points
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Time (Seconds)
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        No. of Participants
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.settings.map((setting) => (
+                      <SettingItem key={crypto.randomUUID()} data={setting} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
 
           {activeTab === 3 && (
@@ -574,7 +580,13 @@ function ParticipantRoundItem(props: ParticipantRoundItemProp) {
 }
 
 type SettingItemProp = {
-  data: { difficulty: string; points: number; time: number; number_participants: number }
+  data: {
+    difficulty: string
+    points: number
+    partial_points: number
+    time: number
+    number_participants: number
+  }
 }
 
 function SettingItem(props: SettingItemProp) {
@@ -589,6 +601,7 @@ function SettingItem(props: SettingItemProp) {
         </th>
 
         <td className="px-6 py-4 text-gray-800">{props.data.points}</td>
+        <td className="px-6 py-4 text-gray-800">{props.data.partial_points}</td>
         <td className="px-6 py-4 text-gray-800">{props.data.time}</td>
         <td className="px-6 py-4 text-gray-800">{props.data.number_participants}</td>
       </tr>
