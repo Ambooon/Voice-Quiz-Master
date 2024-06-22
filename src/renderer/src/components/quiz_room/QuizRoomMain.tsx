@@ -113,26 +113,29 @@ export default function QuizRoomMain() {
       setQuizData(_quizData)
     }
     getQuiz()
+    try {
+      const { createClient } = deepgram
+      const _deepgram = createClient('b48716aeb2761c8fafe5ed04a1a84af0f2675adc')
 
-    const { createClient } = deepgram
-    const _deepgram = createClient('b48716aeb2761c8fafe5ed04a1a84af0f2675adc')
+      const _socket = _deepgram.listen.live({
+        language: 'en',
+        model: 'nova-2',
+        numerals: true,
+        punctuate: false,
+        diarize: true,
 
-    const _socket = _deepgram.listen.live({
-      language: 'en',
-      model: 'nova-2',
-      numerals: true,
-      punctuate: false,
-      diarize: true,
-
-      // To get UtteranceEnd, the following must be set:
-      interim_results: true,
-      utterance_end_ms: 1000,
-      vad_events: true
-    })
-    setSocket(_socket)
-    _socket.on('open', async () => {
-      await start(_socket)
-    })
+        // To get UtteranceEnd, the following must be set:
+        interim_results: true,
+        utterance_end_ms: 1000,
+        vad_events: true
+      })
+      setSocket(_socket)
+      _socket.on('open', async () => {
+        await start(_socket)
+      })
+    } catch {
+      setSocket(null)
+    }
   }, [])
 
   useEffect(() => {
@@ -174,46 +177,51 @@ export default function QuizRoomMain() {
     console.log(transcript)
     const command = transcript.match(/\b(\w+)\b/g)
     if (command[0] === 'participant' || command[0] === 'participants') {
-      let id: number
-      if (new Set(['want', 'plan', 'point', 'one']).has(command[1])) {
-        id = 1
-      } else if (new Set(['to', 'too', 'two']).has(command[1])) {
-        id = 2
-      } else if (new Set(['tree', 'three']).has(command[1])) {
-        id = 3
-      } else if (new Set(['for', 'four']).has(command[1])) {
-        id = 4
-      } else if (new Set(['file', 'five']).has(command[1])) {
-        id = 5
-      } else if (new Set(['sex', 'six']).has(command[1])) {
-        id = 6
-      } else if (new Set(["haven't", 'seven']).has(command[1])) {
-        id = 7
-      } else if (new Set(['ate', 'eight']).has(command[1])) {
-        id = 8
-      } else if (new Set(['dine', 'nine', 'mine', 'nine']).has(command[1])) {
-        id = 9
-      } else if (new Set(['then', 'ten']).has(command[1])) {
-        id = 10
-      } else {
-        id = parseInt(command[1])
+      // let id: number
+      const ids: number[] = []
+      for (let i = 1; i < command.length - 1; i++) {
+        if (new Set(['want', 'plan', 'point', 'one']).has(command[i])) {
+          ids.push(1)
+        } else if (new Set(['to', 'too', 'two']).has(command[i])) {
+          ids.push(2)
+        } else if (new Set(['tree', 'three']).has(command[i])) {
+          ids.push(3)
+        } else if (new Set(['for', 'four']).has(command[i])) {
+          ids.push(4)
+        } else if (new Set(['file', 'five']).has(command[i])) {
+          ids.push(5)
+        } else if (new Set(['sex', 'six']).has(command[i])) {
+          ids.push(6)
+        } else if (new Set(["haven't", 'seven']).has(command[i])) {
+          ids.push(7)
+        } else if (new Set(['ate', 'eight']).has(command[i])) {
+          ids.push(8)
+        } else if (new Set(['dine', 'nine', 'mine', 'nine']).has(command[i])) {
+          ids.push(9)
+        } else if (new Set(['then', 'ten']).has(command[i])) {
+          ids.push(10)
+        } else {
+          ids.push(parseInt(command[i]))
+        }
+
+        // if (typeof id !== 'number') {
+        //   return
+        // }
       }
 
-      if (typeof id !== 'number') {
-        return
-      }
       let isCorrect: boolean
-      if (new Set(['correct', 'current', 'connect']).has(command[2])) {
+      if (new Set(['correct', 'current', 'connect']).has(command[command.length - 1])) {
         isCorrect = true
-      } else if (new Set(['incorrect', 'in correct']).has(command[2])) {
+      } else if (new Set(['incorrect', 'in correct']).has(command[command.length - 1])) {
         isCorrect = false
       } else {
         return
       }
+
       if (currentPageRef.current === 'scoring') {
-        scoringPageRef.current.scoreParticipant(id, isCorrect)
+        scoringPageRef.current.scoreParticipant(ids, isCorrect)
       } else if (currentPageRef.current === 'clincherScoring') {
-        scoringClincherPageRef?.current.scoreParticipant(id, isCorrect)
+        scoringClincherPageRef?.current.scoreParticipant(ids, isCorrect)
       }
     } else if (
       new Set(['begin quiz', 'begin please', 'begin with', 'big increase', 'begins with']).has(

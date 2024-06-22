@@ -23,19 +23,20 @@ const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
   const _correctSFX = new Audio(correctSFX)
   const _wrongSFX = new Audio(wrongSFX)
 
-  function scoreParticipant(id: number, isCorrect = false) {
+  function scoreParticipant(ids: any[], isCorrect = false) {
     const nextParticipants = [...participants]
-    // const participant = nextParticipants.find((p) => p.id === id)
-    const participant = nextParticipants.find((p, index) => index + 1 === id)
-    if (participant) {
-      participant.isScored = true
-      participant.isCorrect = isCorrect
-      if (participant.isCorrect) {
-        _correctSFX.play()
-      } else {
-        _wrongSFX.play()
+    ids.forEach((id) => {
+      const participant = nextParticipants.find((p, index) => index + 1 === id)
+      if (participant) {
+        participant.isScored = true
+        participant.isCorrect = isCorrect
+        if (participant.isCorrect) {
+          _correctSFX.play()
+        } else {
+          _wrongSFX.play()
+        }
       }
-    }
+    })
     setParticipants(nextParticipants)
   }
 
@@ -69,7 +70,7 @@ const ScoringPage = forwardRef((props: ScoringPageProp, ref) => {
               name={participant.name}
               isCorrect={participant.isCorrect}
               isScored={participant.isScored}
-              onManualScore={(id, isCorrect) => scoreParticipant(id, isCorrect)}
+              onManualScore={(id, isCorrect) => scoreParticipant([id], isCorrect)}
             />
           )
         })}
