@@ -384,21 +384,20 @@ export default function QuizRoomMain() {
         }
       }))
     } else {
-      // Accumulate
-      const addToParticipants = [
-        ...quizData.participants,
-        ...clincherWinners,
-        ...correctParticipants
-      ]
-      // Reset scores to 0 per round
-      // const addToParticipants = [
-      //   ...quizData.participants,
-      //   ...clincherWinners,
-      //   ...correctParticipants
-      // ].map((participant) => {
-      //   return { ...participant, score: 0 }
-      // })
-      //
+      // Revision
+      let addToParticipants: any[] = []
+      if (quizData?.scoring_type === 'accumulate' || quizData.scoring_type === 'partial') {
+        addToParticipants = [...quizData.participants, ...clincherWinners, ...correctParticipants]
+      } else if (quizData?.scoring_type === 'perround') {
+        addToParticipants = [
+          ...quizData.participants,
+          ...clincherWinners,
+          ...correctParticipants
+        ].map((participant) => {
+          return { ...participant, score: 0 }
+        })
+      }
+
       setQuizData((prev) => ({
         ...prev,
         participants: [...addToParticipants]
@@ -443,7 +442,6 @@ export default function QuizRoomMain() {
       } else {
         const setting = quizData?.settings.find((setting) => setting.difficulty === currentRound)
         // revision
-        // scoring_type is not in the setting.difficulty
         if (quizData?.scoring_type === 'partial') {
           participant.score += setting.partial_points
         }
