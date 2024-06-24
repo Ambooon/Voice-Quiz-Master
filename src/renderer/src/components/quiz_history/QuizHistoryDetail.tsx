@@ -12,6 +12,7 @@ const tabs = [
   'Easy Round',
   'Average Round',
   'Difficult Round',
+  'Item Analysis',
   'Settings'
 ]
 
@@ -27,6 +28,7 @@ export default function QuizHistoryDetail() {
   useEffect(() => {
     async function getData() {
       const result = await window.api.getQuizHistory(id)
+      console.log(result)
       setData(result)
     }
     getData()
@@ -38,6 +40,7 @@ export default function QuizHistoryDetail() {
     data?.participants.forEach((participant) => {
       participants.push([...Object.values(participant)].map((item) => String(item)))
     })
+
     const questions: string[][] = []
     data?.questions.forEach((question) => {
       questions.push([...Object.values(question)].map((item) => String(item)))
@@ -53,7 +56,6 @@ export default function QuizHistoryDetail() {
       settings.push([...Object.values(setting)].map((item) => String(item)))
     })
     settings[3] = [settings[3][0], '-', settings[3][1], '-']
-    console.log(settings[3])
     const easy: string[][] = []
     data?.easy.participants.forEach((participant) => {
       easy.push(
@@ -97,7 +99,6 @@ export default function QuizHistoryDetail() {
     })
 
     const text = [`${data.title + ' ' + '(' + data.date + ')'}`, data.description]
-    console.log(data)
     doc.text(text, 14, 10)
     let height = 0
     text.forEach((item) => {
@@ -117,7 +118,7 @@ export default function QuizHistoryDetail() {
     doc.text('Questions', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['Question', 'Answer', 'Choices', 'Difficulty']],
+      head: [['Image', 'Question', 'Answer', 'Choices', 'Difficulty']],
       body: questions
     })
 
@@ -155,6 +156,98 @@ export default function QuizHistoryDetail() {
       startY: finalY + 20,
       head: [['Difficulty', 'Points', 'Time (Seconds)', 'No. of Participants']],
       body: settings
+    })
+
+    finalY = doc.lastAutoTable.finalY
+    doc.text('Item Analysis', 14, finalY + 15)
+
+    // ['1', 'Question 1', 'Answer 1', nestedTableCell]
+    const nestedTableCell = {
+      content: '',
+      // minCellHeight = (no. of participants + 1) * 10
+      styles: { minCellHeight: participants.length * 10 }
+    }
+    const itemQuestions = data.item_analysis.map((obj, index) => [
+      String(index + 1),
+      obj.question,
+      obj.answer,
+      nestedTableCell
+    ])
+
+    const itemParticipants = data.item_analysis.map((obj) =>
+      obj.participants.map((p) => [p.name, p.isCorrect ? 'Correct' : 'Incorrect'])
+    )
+
+    autoTable(doc, {
+      startY: finalY + 20,
+      theme: 'grid',
+      head: [['No.', 'Question', 'Answer', 'Item Analysis']],
+      body: itemQuestions,
+      // [
+      //   // change
+      //   // ['1', 'Question 1', 'Answer 1', nestedTableCell],
+      //   // ['2', 'Question 2', 'Answer 2', nestedTableCell],
+      //   // ['3', 'Question 3', 'Answer 3', nestedTableCell],
+      //   // ['4', 'Question 4', 'Answer 4', nestedTableCell]
+      // ],
+      didDrawCell: function (data) {
+        // change
+        const items = itemParticipants
+        // const items = [
+        //   [
+        //     ['Francis', 'Correct'],
+        //     ['David', 'Correct'],
+        //     ['Jezter', 'InCorrect']
+        //   ],
+        //   [
+        //     ['Francis', 'Correct'],
+        //     ['David', 'Incorrect'],
+        //     ['Jezter', 'Incorrect']
+        //   ],
+        //   [
+        //     ['Francis', 'Correct'],
+        //     ['David', 'Incorrect']
+        //   ],
+        //   [['Francis', 'Correct']]
+        // ]
+
+        for (let i = 0; i < items.length; i++) {
+          if (data.column.index === 3 && data.cell.section === 'body' && data.row.index === i) {
+            autoTable(doc, {
+              startY: data.cell.y + 2,
+              margin: { left: data.cell.x + 2 },
+              tableWidth: data.cell.width - 4,
+              columns: [
+                { dataKey: 'name', header: 'Name' },
+                { dataKey: 'isCorrect', header: 'Is Correct' }
+              ],
+              body: items[i]
+            })
+          }
+        }
+        // if (data.column.index === 3 && data.cell.section === 'body' && data.row.index === 1) {
+        //   autoTable(doc, {
+        //     startY: data.cell.y + 2,
+        //     margin: { left: data.cell.x + 2 },
+        //     tableWidth: data.cell.width - 4,
+        //     columns: [
+        //       { dataKey: 'name', header: 'Name' },
+        //       { dataKey: 'isCorrect', header: 'Is Correct' }
+        //     ],
+        //     body: [
+        //       ['Francis', 'Correct'],
+        //       ['David', 'Correct'],
+        //       ['Jezter', 'Incorrect']
+        //     ]
+        //   })
+        // }
+      },
+      columnStyles: {
+        3: { cellWidth: 80 }
+      },
+      bodyStyles: {
+        minCellHeight: 30
+      }
     })
 
     doc.save('test.pdf')
@@ -320,6 +413,40 @@ export default function QuizHistoryDetail() {
           )}
 
           {activeTab === 6 && (
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 mb-8 mt-4">
+              <table
+                className="w-full text-sm text-left rtl:text-right text-gray-500"
+                id="item-analysis-table"
+              >
+                <thead className="text-xs text-white uppercase bg-myBlue-2">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      No.
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Question
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Answer
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.item_analysis.map((question, index) => (
+                    <ItemAnalysis
+                      key={crypto.randomUUID()}
+                      index={index + 1}
+                      question={question.question}
+                      answer={question.answer}
+                      participants={question.participants}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab === 7 && (
             <>
               <p className="mt-8 mb-4 capitalize">Scoring Type: {data.scoring_type}</p>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96">
@@ -519,6 +646,43 @@ function QuestionItem(props: QuestionItemProp) {
       <td className="px-6 py-4">{props.choices?.length ? props.choices : '-'}</td>
       <td className="px-6 py-4">{props.difficulty === 'hard' ? 'difficult' : props.difficulty}</td>
     </tr>
+  )
+}
+
+type ItemAnalysisProp = {
+  index: number
+  question: string
+  answer: string
+  participants: []
+}
+
+function ItemAnalysis(props: ItemAnalysisProp) {
+  return (
+    <>
+      <tr className="bg-myBlue-1 border-b hover:bg-myBlue-2 text-white">
+        <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap">
+          {props.index}
+        </th>
+        <td className="px-6 py-4">{props.question}</td>
+        <td className="px-6 py-4">{props.answer}</td>
+      </tr>
+      <tr className="bg-gray-100 text-slate-600">
+        <th className="px-6 py-2">Name</th>
+        <th colSpan={2} className="px-6 py-2">
+          Is Correct
+        </th>
+      </tr>
+      {props.participants.map((p, index) => {
+        return (
+          <tr key={index} className="bg-white border-b hover:bg-gray-200">
+            <td className="px-6 py-4">{p.name}</td>
+            <td colSpan={2} className="px-6 py-4">
+              {p.isCorrect ? 'Correct' : 'Incorrect'}
+            </td>
+          </tr>
+        )
+      })}
+    </>
   )
 }
 

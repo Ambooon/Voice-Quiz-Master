@@ -92,7 +92,8 @@ export default function QuizRoomMain() {
         date: new Date().toISOString().slice(0, 10),
         questions: _quizData.questions,
         participants: _quizData.participants,
-        clincher: _quizData.clincher
+        clincher: _quizData.clincher,
+        item_analysis: []
       })
       const participants = _quizData.participants.map((participant) => ({
         ...participant,
@@ -313,22 +314,7 @@ export default function QuizRoomMain() {
       setIsDone(true)
     }
   }
-  // function voiceCommand2(transcript) {
-  //   const command = transcript.match(/\b(\w+)\b/g)
 
-  //   switch (command) {
-  //     case 'participant':
-  //     case 'participants':
-  //       break
-
-  //     case 'begin quiz':
-  //     case 'begin please':
-  //     case 'begin with':
-  //     case 'big increase':
-  //     case 'begins with':
-
-  //   }
-  // }
   function finishedScoring() {
     if (currentPageRef.current === 'scoring') {
       scoringPageRef?.current.sendScores()
@@ -439,15 +425,29 @@ export default function QuizRoomMain() {
       if (score?.isCorrect) {
         const setting = quizData?.settings.find((setting) => setting.difficulty === currentRound)
         participant.score += setting.points
+        participant.isCorrect = true
       } else {
         const setting = quizData?.settings.find((setting) => setting.difficulty === currentRound)
         // revision
+        participant.isCorrect = false
+
         if (quizData?.scoring_type === 'partial') {
           participant.score += setting.partial_points
         }
       }
       return participant
     })
+    // revision
+    const itemAnalysis = {
+      question: quizData.questions[currentRound][currentQuestionIndex].question,
+      answer: quizData.questions[currentRound][currentQuestionIndex].answer,
+      participants: newParticipants.map((p) => {
+        const { score, ...rest } = p
+        return rest
+      })
+    }
+    setHistoryData((prev) => ({ ...prev, item_analysis: [...prev.item_analysis, itemAnalysis] }))
+    console.log(historyData)
     setQuizData((prev) => ({ ...prev, participants: newParticipants }))
   }
 
