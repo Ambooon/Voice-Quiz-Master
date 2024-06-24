@@ -161,10 +161,8 @@ export default function QuizHistoryDetail() {
     finalY = doc.lastAutoTable.finalY
     doc.text('Item Analysis', 14, finalY + 15)
 
-    // ['1', 'Question 1', 'Answer 1', nestedTableCell]
     const nestedTableCell = {
       content: '',
-      // minCellHeight = (no. of participants + 1) * 10
       styles: { minCellHeight: participants.length * 10 }
     }
     const itemQuestions = data.item_analysis.map((obj, index) => [
@@ -183,33 +181,9 @@ export default function QuizHistoryDetail() {
       theme: 'grid',
       head: [['No.', 'Question', 'Answer', 'Item Analysis']],
       body: itemQuestions,
-      // [
-      //   // change
-      //   // ['1', 'Question 1', 'Answer 1', nestedTableCell],
-      //   // ['2', 'Question 2', 'Answer 2', nestedTableCell],
-      //   // ['3', 'Question 3', 'Answer 3', nestedTableCell],
-      //   // ['4', 'Question 4', 'Answer 4', nestedTableCell]
-      // ],
+
       didDrawCell: function (data) {
-        // change
         const items = itemParticipants
-        // const items = [
-        //   [
-        //     ['Francis', 'Correct'],
-        //     ['David', 'Correct'],
-        //     ['Jezter', 'InCorrect']
-        //   ],
-        //   [
-        //     ['Francis', 'Correct'],
-        //     ['David', 'Incorrect'],
-        //     ['Jezter', 'Incorrect']
-        //   ],
-        //   [
-        //     ['Francis', 'Correct'],
-        //     ['David', 'Incorrect']
-        //   ],
-        //   [['Francis', 'Correct']]
-        // ]
 
         for (let i = 0; i < items.length; i++) {
           if (data.column.index === 3 && data.cell.section === 'body' && data.row.index === i) {
@@ -225,22 +199,6 @@ export default function QuizHistoryDetail() {
             })
           }
         }
-        // if (data.column.index === 3 && data.cell.section === 'body' && data.row.index === 1) {
-        //   autoTable(doc, {
-        //     startY: data.cell.y + 2,
-        //     margin: { left: data.cell.x + 2 },
-        //     tableWidth: data.cell.width - 4,
-        //     columns: [
-        //       { dataKey: 'name', header: 'Name' },
-        //       { dataKey: 'isCorrect', header: 'Is Correct' }
-        //     ],
-        //     body: [
-        //       ['Francis', 'Correct'],
-        //       ['David', 'Correct'],
-        //       ['Jezter', 'Incorrect']
-        //     ]
-        //   })
-        // }
       },
       columnStyles: {
         3: { cellWidth: 80 }

@@ -447,7 +447,6 @@ export default function QuizRoomMain() {
       })
     }
     setHistoryData((prev) => ({ ...prev, item_analysis: [...prev.item_analysis, itemAnalysis] }))
-    console.log(historyData)
     setQuizData((prev) => ({ ...prev, participants: newParticipants }))
   }
 
