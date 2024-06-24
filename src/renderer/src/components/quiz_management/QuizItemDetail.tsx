@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // eslint-disable @typescript-eslint/no-explicit-any
-// @ts-nocheck
 import { useEffect, useState } from 'react'
 import { FaCheck, FaPlay } from 'react-icons/fa'
 import { ImCross } from 'react-icons/im'
@@ -8,7 +7,7 @@ import { IoIosAdd, IoIosHelpCircleOutline, IoMdArrowRoundBack } from 'react-icon
 import { MdDelete, MdEdit } from 'react-icons/md'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 
-const tabs = ['Questions', 'Participants', 'Clincher Questions', 'Settings']
+const tabs = ['Questions', 'Participants', 'Clincher Questions', 'Settings', 'Keywords']
 
 export default function QuizItemDetail() {
   const { id } = useParams()
@@ -66,6 +65,78 @@ export default function QuizItemDetail() {
         participants: [
           { name: 'Participant 1', description: '-' },
           { name: 'Participant 2', description: '-' }
+        ],
+        keywords: [
+          // 0
+          {
+            command: 'Stop Quiz',
+            keywords: []
+          },
+          // 1
+          {
+            command: 'Confirm Stop Quiz',
+            keywords: []
+          },
+          // 2
+          {
+            command: 'Cancel Stop Quiz',
+            keywords: []
+          },
+          // 3
+          {
+            command: 'Begin Quiz',
+            keywords: []
+          },
+          // 4
+          {
+            command: 'Start Timer',
+            keywords: []
+          },
+          // 5
+          {
+            command: 'Show Answer',
+            keywords: []
+          },
+          // 6
+          {
+            command: 'Begin Scoring',
+            keywords: []
+          },
+          // 7
+          {
+            command: 'Participant',
+            keywords: []
+          },
+          // 8
+          {
+            command: 'Correct',
+            keywords: []
+          },
+          // 9
+          {
+            command: 'Incorrect',
+            keywords: []
+          },
+          // 10
+          {
+            command: 'Finish Scoring',
+            keywords: []
+          },
+          // 11
+          {
+            command: 'Next Question',
+            keywords: []
+          },
+          // 12
+          {
+            command: 'Next Round',
+            keywords: []
+          },
+          // 13
+          {
+            command: 'Start Clincher',
+            keywords: []
+          }
         ]
       }
       setQuizData(_data)
@@ -106,6 +177,18 @@ export default function QuizItemDetail() {
     }
   }
 
+  function onChangeKeywords(data: { command: string; keywords: string[] }) {
+    if (quizData) {
+      const newKeywords = quizData.keywords.map((keyword) => {
+        if (keyword.command === data.command) {
+          return data
+        }
+        return keyword
+      })
+      const newQuizData = { ...quizData, keywords: newKeywords }
+      setQuizData(newQuizData)
+    }
+  }
   function onEditQuiz(e) {
     if (quizData) {
       const newQuizData = { ...quizData, [e.target.name]: e.target.value }
@@ -564,9 +647,139 @@ export default function QuizItemDetail() {
               </div>
             </>
           )}
+
+          {activeTab === 4 && (
+            <>
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-8 mb-4 max-h-96">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        Command
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 flex justify-start items-center gap-2 relative"
+                      >
+                        Keywords
+                        <IoIosHelpCircleOutline
+                          size={20}
+                          className="hover:cursor-help"
+                          onMouseEnter={() => {
+                            document.getElementById('choices-tooltip')?.classList.remove('hidden')
+                          }}
+                          onMouseLeave={() => {
+                            document.getElementById('choices-tooltip')?.classList.add('hidden')
+                          }}
+                        />
+                        <div
+                          id="choices-tooltip"
+                          className="hidden bg-slate-50 rounded-md shadow-sm p-2 w-24 absolute top-2 left-32 capitalize font-normal"
+                        >
+                          <p>{'Seperate keywords by comma ( , ) and without space'}</p>
+                        </div>
+                      </th>
+                      <th scope="col" className="px-6 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quizData &&
+                      quizData.keywords?.map((keyword) => (
+                        <KeywordItem
+                          key={crypto.randomUUID()}
+                          data={keyword}
+                          onChangeSettings={(data: { command: string; keywords: string[] }) =>
+                            onChangeKeywords(data)
+                          }
+                        />
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </>
       )}
     </section>
+  )
+}
+
+type KeywordItemProp = {
+  data: { command: string; keywords: string[] }
+  onChangeSettings: (data: { command: string; keywords: string[] }) => void
+}
+
+function KeywordItem(props: KeywordItemProp) {
+  const [isEdit, setIsEdit] = useState(false)
+  const [data, setData] = useState(props.data)
+
+  function onConfirmEdit() {
+    setIsEdit((prev) => !prev)
+    props.onChangeSettings(data)
+  }
+
+  function onCancelEdit() {
+    setIsEdit((prev) => !prev)
+    setData(props.data)
+  }
+
+  function onHandleChange(e) {
+    // eslint-disable-next-line prefer-const
+    let { name, value } = e.target
+    if (name === 'keywords') {
+      value = e.target.value.split(',')
+    }
+    setData((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  return (
+    <>
+      <tr className="border-b">
+        <th
+          scope="row"
+          className="capitalize px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex justify-between items-center"
+        >
+          {data.command}
+        </th>
+        {isEdit ? (
+          <>
+            <td>
+              <input
+                className="px-1 border border-slate-800 rounded-sm w-64 "
+                type="text"
+                name="keywords"
+                value={data.keywords}
+                onChange={onHandleChange}
+              />
+            </td>
+            <td className="py-4 flex justify-center items-center gap-4">
+              <button onClick={() => onConfirmEdit()}>
+                <FaCheck size={16} className="text-slate-800" />
+              </button>
+              <button onClick={() => onCancelEdit()}>
+                <ImCross size={16} className="text-red-600" />
+              </button>
+            </td>
+          </>
+        ) : (
+          <>
+            <td>
+              {data.keywords.map((word, index) =>
+                index !== data.keywords.length - 1 ? word + ', ' : word
+              )}
+            </td>
+            <td className="py-4 flex justify-center items-center gap-4">
+              <button onClick={() => setIsEdit((prev) => !prev)}>
+                <MdEdit size={20} className="text-slate-800" />
+              </button>
+            </td>
+          </>
+        )}
+      </tr>
+    </>
   )
 }
 

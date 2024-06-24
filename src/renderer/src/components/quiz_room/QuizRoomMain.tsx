@@ -28,7 +28,10 @@ export default function QuizRoomMain() {
   const [clincherWinners, setClincherWinners] = useState<any[]>([])
   const [historyData, setHistoryData] = useState()
   const [scoreParticipants, setScoreParticipants] = useState()
+  const [keywords, setKeywords] = useState<any[]>([])
 
+  const keywordsRef = useRef()
+  keywordsRef.current = keywords
   const quizDataRef = useRef()
   quizDataRef.current = quizData
   const currentPageRef = useRef()
@@ -83,6 +86,8 @@ export default function QuizRoomMain() {
   useEffect(() => {
     async function getQuiz() {
       let _quizData = await window.api.getQuiz(id)
+      setKeywords(_quizData.keywords)
+      console.log(_quizData.keywords)
       setHistoryData({
         user: sessionStorage.getItem('username'),
         title: _quizData.title,
@@ -177,8 +182,11 @@ export default function QuizRoomMain() {
 
   function voiceCommand(transcript) {
     console.log(transcript)
+    console.log(keywordsRef.current)
     const command = transcript.match(/\b(\w+)\b/g)
-    if (command[0] === 'participant' || command[0] === 'participants') {
+    if (
+      new Set(['participant', 'participants', ...keywordsRef.current[7].keywords]).has(command[0])
+    ) {
       // let id: number
       const ids: number[] = []
       for (let i = 1; i < command.length - 1; i++) {
@@ -212,9 +220,17 @@ export default function QuizRoomMain() {
       }
 
       let isCorrect: boolean
-      if (new Set(['correct', 'current', 'connect']).has(command[command.length - 1])) {
+      if (
+        new Set(['correct', 'current', 'connect', ...keywordsRef.current[8].keywords]).has(
+          command[command.length - 1]
+        )
+      ) {
         isCorrect = true
-      } else if (new Set(['incorrect', 'in correct']).has(command[command.length - 1])) {
+      } else if (
+        new Set(['incorrect', 'in correct', ...keywordsRef.current[9].keywords]).has(
+          command[command.length - 1]
+        )
+      ) {
         isCorrect = false
       } else {
         return
@@ -226,36 +242,67 @@ export default function QuizRoomMain() {
         scoringClincherPageRef?.current.scoreParticipant(ids, isCorrect)
       }
     } else if (
-      new Set(['begin quiz', 'begin please', 'begin with', 'big increase', 'begins with']).has(
-        transcript
-      ) &&
+      new Set([
+        'begin quiz',
+        'begin please',
+        'begin with',
+        'big increase',
+        'begins with',
+        ...keywordsRef.current[3].keywords
+      ]).has(transcript) &&
       currentPageRef.current === 'start'
     ) {
       setCurrentPage('question')
-    } else if (new Set(['stop quiz', 'stop please', 'stop with']).has(transcript)) {
+    } else if (
+      new Set(['stop quiz', 'stop please', 'stop with', ...keywordsRef.current[0].keywords]).has(
+        transcript
+      )
+    ) {
       setConfirmExit(true)
     } else if (
-      new Set(['confirm stop quiz', 'confirm stop please', 'confirm stop with']).has(transcript) &&
+      new Set([
+        'confirm stop quiz',
+        'confirm stop please',
+        'confirm stop with',
+        ...keywordsRef.current[1].keywords
+      ]).has(transcript) &&
       isConfirmExitRef.current
     ) {
       setIsDone(true)
       navigate('/')
     } else if (
-      new Set(['cancel stop quiz', 'cancel stop please', 'cancel stop with']).has(transcript) &&
+      new Set([
+        'cancel stop quiz',
+        'cancel stop please',
+        'cancel stop with',
+        ...keywordsRef.current[2].keywords
+      ]).has(transcript) &&
       isConfirmExitRef.current
     ) {
       setConfirmExit(false)
     } else if (
-      new Set(['start timer', 'add timer']).has(transcript) &&
+      new Set(['start timer', 'add timer', ...keywordsRef.current[4].keywords]).has(transcript) &&
       (currentPageRef.current === 'question' || currentPageRef.current === 'clincherQuestion')
     ) {
       questionPageRef?.current?.start()
     } else if (
-      new Set(['show answer', 'no answer', 'show and save']).has(transcript) &&
+      new Set([
+        'show answer',
+        'no answer',
+        'show and save',
+        ...keywordsRef.current[5].keywords
+      ]).has(transcript) &&
       (currentPageRef.current === 'question' || currentPageRef.current === 'clincherQuestion')
     ) {
       questionPageRef?.current?.showAnswer()
-    } else if (new Set(['begin scoring', 'begins scoring', 'begins carding']).has(transcript)) {
+    } else if (
+      new Set([
+        'begin scoring',
+        'begins scoring',
+        'begins carding',
+        ...keywordsRef.current[6].keywords
+      ]).has(transcript)
+    ) {
       if (currentPageRef.current === 'question') {
         setCurrentPage('scoring')
       } else if (currentPageRef.current === 'clincherQuestion') {
@@ -272,22 +319,27 @@ export default function QuizRoomMain() {
         'femenish scoring',
         'image scoring',
         'famesh scoring',
-        'english scoring'
+        'english scoring',
+        ...keywordsRef.current[10].keywords
       ]).has(transcript)
     ) {
       finishedScoring()
-    } else if (transcript === 'next question') {
+    } else if (new Set(['next question', ...keywordsRef.current[11].keywords]).has(transcript)) {
       if (currentPageRef.current === 'ranking') {
         nextQuestion()
       } else if (currentPageRef.current === 'elimination') {
         setCurrentPage('question')
       }
     } else if (
-      new Set(['start clincher', 'start clean share']).has(transcript) &&
+      new Set(['start clincher', 'start clean share', ...keywordsRef.current[13].keywords]).has(
+        transcript
+      ) &&
       currentPageRef.current === 'clincher'
     ) {
       setCurrentPage('clincherQuestion')
-    } else if (transcript === 'next round' || transcript === 'x round') {
+    } else if (
+      new Set(['next round', 'x round', ...keywordsRef.current[12].keywords]).has(transcript)
+    ) {
       // currentPage is roundEnd
       if (currentPageRef.current === 'roundEnd') {
         endRound()
