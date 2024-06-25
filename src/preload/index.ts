@@ -57,12 +57,10 @@ const api = {
         ...object
       }
     })
-    console.log(quizzes)
     return quizzes
   },
 
   createQuiz: async (data) => {
-    // return await quizzesDb.insertOne(data)
     const { user, ..._data } = data
     const secretKey = 'mySecretKey'
     const cipher = crypto.createCipher('aes-256-cbc', secretKey)
@@ -85,7 +83,6 @@ const api = {
   },
 
   updateQuiz: async (id, data) => {
-    console.log(data)
     const { _id, user, ...rest } = data
     const secretKey = 'mySecretKey'
     const cipher = crypto.createCipher('aes-256-cbc', secretKey)
