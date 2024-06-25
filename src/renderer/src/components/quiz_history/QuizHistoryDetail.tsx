@@ -438,9 +438,6 @@ export default function QuizHistoryDetail() {
                         Points
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Partial Points
-                      </th>
-                      <th scope="col" className="px-6 py-3">
                         Time (Seconds)
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -735,7 +732,6 @@ type SettingItemProp = {
   data: {
     difficulty: string
     points: number
-    partial_points: number
     time: number
     number_participants: number
   }
@@ -753,7 +749,6 @@ function SettingItem(props: SettingItemProp) {
         </th>
 
         <td className="px-6 py-4 text-gray-800">{props.data.points}</td>
-        <td className="px-6 py-4 text-gray-800">{props.data.partial_points}</td>
         <td className="px-6 py-4 text-gray-800">{props.data.time}</td>
         <td className="px-6 py-4 text-gray-800">{props.data.number_participants}</td>
       </tr>
