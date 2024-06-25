@@ -5,6 +5,7 @@ import buzzerSFX from '../../assets/sounds/BuzzerSFX.mp3'
 type QuestionPageProp = {
   data:
     | {
+        image: string
         question: string
         answer: string
         difficulty: string
@@ -118,18 +119,23 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
               <FaPlay />
             </button>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto mb-6">
-            {/* <div className={'bg-blue-600 h-2.5 rounded-full'}></div> */}
+          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto">
             <div
               className="bg-blue-600 h-2.5 rounded-full"
               style={{ width: `${timerWidth}%` }}
             ></div>
-            {/* <p className="text-lg font-light text-center mt-2 capitalize">
-              Difficulty: {props.data?.difficulty}
-            </p> */}
           </div>
-          <h1 className="font-bold text-4xl text-center mb-12">{props.data.question}</h1>
-          <div>
+          <div className="flex justify-center">
+            {props.data.image && (
+              <img
+                src={props.data.image}
+                alt="question-image"
+                style={{ width: '300px', height: '300px', objectFit: 'contain' }}
+              />
+            )}
+          </div>
+          <h1 className="font-bold text-6xl text-center mb-12">{props.data.question}</h1>
+          <div className="columns-2">
             {props.data.choices &&
               props.data.choices.map((choice) => {
                 return <Choice key={crypto.randomUUID()} text={choice} />
@@ -166,7 +172,7 @@ type ChoiceType = {
 
 function Choice(props: ChoiceType) {
   return (
-    <div className="bg-slate-100 shadow-sm rounded-sm max-w-lg p-4 mb-4 mx-auto text-center">
+    <div className="bg-slate-100 shadow-sm rounded-sm max-w-sm p-4 mb-4 mx-auto text-center">
       <h2 className="font-semibold text-2xl">{props.text}</h2>
     </div>
   )

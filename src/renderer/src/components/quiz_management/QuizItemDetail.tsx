@@ -937,6 +937,22 @@ function QuestionItem(props: QuestionItemProp) {
     if (name === 'choices') {
       value = e.target.value.split(',')
     }
+
+    if (name === 'image') {
+      const file = e.target.files[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setQuestionData((prev) => ({
+            ...prev,
+            [name]: reader.result
+          }))
+        }
+        reader.readAsDataURL(file)
+      }
+      return
+    }
+
     setQuestionData((prev) => ({
       ...prev,
       [name]: value
@@ -963,11 +979,8 @@ function QuestionItem(props: QuestionItemProp) {
               <input
                 // className="px-1 border border-slate-800 rounded-sm w-20"
                 type="file"
-                label="Image"
                 name="image"
-                id="image"
                 accept=".jpeg, .png, .jpg"
-                value={questionData.image}
                 onChange={onHandleChange}
               />
             </td>
@@ -1024,7 +1037,13 @@ function QuestionItem(props: QuestionItemProp) {
         ) : (
           <>
             <td className="px-6 py-4 text-gray-800">
-              {questionData.image ? <img src={questionData.image} alt="question-image" /> : ''}
+              {questionData.image && (
+                <img
+                  src={questionData.image}
+                  alt="question-image"
+                  style={{ width: '100px', height: '100px', objectFit: 'contain' }}
+                />
+              )}
             </td>
             <td className="px-6 py-4 text-gray-800">{questionData.question}</td>
             <td className="px-6 py-4">{questionData.answer}</td>
