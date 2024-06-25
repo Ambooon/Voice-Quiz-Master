@@ -42,12 +42,24 @@ export default function QuizHistoryDetail() {
     })
 
     const questions: string[][] = []
-    data?.questions.forEach((question) => {
+    const newQuestions = data?.questions.map((item) => ({
+      question: item.question,
+      answer: item.answer,
+      choices: item.choices,
+      difficulty: item.difficulty
+    }))
+    newQuestions.forEach((question) => {
       questions.push([...Object.values(question)].map((item) => String(item)))
     })
 
     const clinchers: string[][] = []
-    data?.clincher.forEach((clinch) => {
+    const newClincherQuestions = data?.clincher.map((item) => ({
+      question: item.question,
+      answer: item.answer,
+      choices: item.choices,
+      difficulty: item.difficulty
+    }))
+    newClincherQuestions.forEach((clinch) => {
       clinchers.push([...Object.values(clinch)].map((item) => String(item)))
     })
 
@@ -118,7 +130,7 @@ export default function QuizHistoryDetail() {
     doc.text('Questions', 14, finalY + 15)
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['Image', 'Question', 'Answer', 'Choices', 'Difficulty']],
+      head: [['Question', 'Answer', 'Choices', 'Difficulty']],
       body: questions
     })
 
