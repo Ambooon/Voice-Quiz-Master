@@ -119,7 +119,7 @@ const QuestionPage = forwardRef((props: QuestionPageProp, ref) => {
               <FaPlay />
             </button>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto">
+          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-lg mx-auto mb-8">
             <div
               className="bg-blue-600 h-2.5 rounded-full"
               style={{ width: `${timerWidth}%` }}

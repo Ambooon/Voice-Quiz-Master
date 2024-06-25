@@ -1180,6 +1180,22 @@ function ClincherItem(props: ClincherItemProp) {
     if (name === 'choices') {
       value = e.target.value.split(',')
     }
+
+    if (name === 'image') {
+      const file = e.target.files[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setClincherData((prev) => ({
+            ...prev,
+            [name]: reader.result
+          }))
+        }
+        reader.readAsDataURL(file)
+      }
+      return
+    }
+
     setClincherData((prev) => ({
       ...prev,
       [name]: value
@@ -1205,6 +1221,15 @@ function ClincherItem(props: ClincherItemProp) {
         </th>
         {isEdit ? (
           <>
+            <td className="px-6 py-4 text-gray-800">
+              <input
+                // className="px-1 border border-slate-800 rounded-sm w-20"
+                type="file"
+                name="image"
+                accept=".jpeg, .png, .jpg"
+                onChange={onHandleChange}
+              />
+            </td>
             <td className="px-6 py-4 text-gray-800">
               <input
                 className="px-1 border border-slate-800 rounded-sm w-20"
@@ -1245,6 +1270,15 @@ function ClincherItem(props: ClincherItemProp) {
           </>
         ) : (
           <>
+            <td className="px-6 py-4 text-gray-800">
+              {clincherData.image && (
+                <img
+                  src={clincherData.image}
+                  alt="question-image"
+                  style={{ width: '100px', height: '100px', objectFit: 'contain' }}
+                />
+              )}
+            </td>
             <td className="px-6 py-4 text-gray-800">{clincherData.question}</td>
             <td className="px-6 py-4">{clincherData.answer}</td>
             <td className="px-6 py-4">

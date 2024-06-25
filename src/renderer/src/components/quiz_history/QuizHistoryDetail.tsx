@@ -270,6 +270,9 @@ export default function QuizHistoryDetail() {
                       No.
                     </th>
                     <th scope="col" className="px-6 py-3">
+                      Image
+                    </th>
+                    <th scope="col" className="px-6 py-3">
                       Question
                     </th>
                     <th scope="col" className="px-6 py-3">
@@ -288,6 +291,7 @@ export default function QuizHistoryDetail() {
                     <QuestionItem
                       key={crypto.randomUUID()}
                       index={index + 1}
+                      image={question.image}
                       question={question.question}
                       answer={question.answer}
                       choices={question.choices}
@@ -341,6 +345,9 @@ export default function QuizHistoryDetail() {
                       No.
                     </th>
                     <th scope="col" className="px-6 py-3">
+                      Image
+                    </th>
+                    <th scope="col" className="px-6 py-3">
                       Question
                     </th>
                     <th scope="col" className="px-6 py-3">
@@ -359,6 +366,7 @@ export default function QuizHistoryDetail() {
                     <QuestionItem
                       key={crypto.randomUUID()}
                       index={index + 1}
+                      image={question.image}
                       question={question.question}
                       answer={question.answer}
                       choices={question.choices}
@@ -587,6 +595,7 @@ export default function QuizHistoryDetail() {
 
 type QuestionItemProp = {
   index: number
+  image: string
   question: string
   answer: string
   choices?: string[]
@@ -599,6 +608,15 @@ function QuestionItem(props: QuestionItemProp) {
       <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
         {props.index}
       </th>
+      <td className="px-6 py-4 text-gray-800">
+        {props.image && (
+          <img
+            src={props.image}
+            alt="question-image"
+            style={{ width: '100px', height: '100px', objectFit: 'contain' }}
+          />
+        )}
+      </td>
       <td className="px-6 py-4 text-gray-800">{props.question}</td>
       <td className="px-6 py-4">{props.answer}</td>
       <td className="px-6 py-4">{props.choices?.length ? props.choices : '-'}</td>
