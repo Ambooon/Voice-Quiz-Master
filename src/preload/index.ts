@@ -105,16 +105,40 @@ const api = {
       .toArray()
 
     quizzes = quizzes.map((quiz) => {
+      const secretKey = 'mySecretKey'
+      const decipher = crypto.createDecipher('aes-256-cbc', secretKey)
+      let decrypted = decipher.update(quiz.encrypted, 'hex', 'utf8')
+      decrypted += decipher.final('utf8')
+      const object = JSON.parse(decrypted)
       return {
-        ...quiz,
-        id: quiz._id.toHexString()
+        id: quiz._id.toHexString(),
+        user: quiz.user,
+        ...object
       }
     })
     return quizzes
+
+    // let quizzes = await historyDb
+    //   .find({ user: user }, { title: 1, date: 1, description: 1 })
+    //   .toArray()
+
+    // quizzes = quizzes.map((quiz) => {
+    //   return {
+    //     ...quiz,
+    //     id: quiz._id.toHexString()
+    //   }
+    // })
+    // return quizzes
   },
 
   createQuizHistory: async (data) => {
-    return await historyDb.insertOne(data)
+    const { user, ..._data } = data
+    const secretKey = 'mySecretKey'
+    const cipher = crypto.createCipher('aes-256-cbc', secretKey)
+    let encrypted = cipher.update(JSON.stringify(_data), 'utf8', 'hex')
+    encrypted += cipher.final('hex')
+
+    return await historyDb.insertOne({ encrypted: encrypted, user: user })
   },
 
   deleteQuizHistory: async (id) => {
@@ -124,8 +148,18 @@ const api = {
 
   getQuizHistory: async (id) => {
     const _id = new ObjectId(id)
-    const result = await historyDb.findOne({ _id: _id })
+    let result = await historyDb.findOne({ _id: _id })
+    const secretKey = 'mySecretKey'
+    const decipher = crypto.createDecipher('aes-256-cbc', secretKey)
+    let decrypted = decipher.update(result.encrypted, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    const object = JSON.parse(decrypted)
+    result = { id: _id.toHexString(), user: result.user, ...object }
     return result
+
+    // const _id = new ObjectId(id)
+    // const result = await historyDb.findOne({ _id: _id })
+    // return result
   },
 
   changePassword: async (data: { username: string; oldPassword: string; newPassword: string }) => {
