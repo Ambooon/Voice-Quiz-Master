@@ -483,9 +483,9 @@ export default function QuizRoomMain() {
         // revision
         participant.isCorrect = false
 
-        if (quizData?.scoring_type === 'partial') {
-          participant.score += setting.partial_points
-        }
+        // if (quizData?.scoring_type === 'partial') {
+        //   participant.score += setting.partial_points
+        // }
       }
       return participant
     })

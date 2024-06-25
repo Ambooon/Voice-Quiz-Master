@@ -33,15 +33,14 @@ export default function QuizItemDetail() {
         description: 'Quiz Description',
         scoring_type: 'accumulate',
         settings: [
-          { difficulty: 'easy', points: 2, partial_points: 0, time: 15, number_participants: 10 },
+          { difficulty: 'easy', points: 2, time: 15, number_participants: 10 },
           {
             difficulty: 'average',
             points: 5,
-            partial_points: 0,
             time: 25,
             number_participants: 10
           },
-          { difficulty: 'hard', points: 10, partial_points: 0, time: 35, number_participants: 10 },
+          { difficulty: 'hard', points: 10, time: 35, number_participants: 10 },
           { difficulty: 'clincher', time: 35 }
         ],
         questions: [
@@ -585,7 +584,6 @@ export default function QuizItemDetail() {
               >
                 <option value="accumulate">Accumulate</option>
                 <option value="perround">Per Round</option>
-                <option value="partial">Partial</option>
               </select>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
@@ -596,28 +594,6 @@ export default function QuizItemDetail() {
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Points
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 flex justify-start items-center gap-2 relative"
-                      >
-                        Partial Points
-                        <IoIosHelpCircleOutline
-                          size={20}
-                          className="hover:cursor-help"
-                          onMouseEnter={() => {
-                            document.getElementById('choices-tooltip')?.classList.remove('hidden')
-                          }}
-                          onMouseLeave={() => {
-                            document.getElementById('choices-tooltip')?.classList.add('hidden')
-                          }}
-                        />
-                        <div
-                          id="choices-tooltip"
-                          className="hidden bg-slate-50 rounded-md shadow-sm p-2 w-24 absolute top-2 left-36 capitalize font-normal"
-                        >
-                          <p>{'This is for Partial Scoring'}</p>
-                        </div>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Timer (Seconds)
@@ -834,22 +810,6 @@ function SettingItem(props: SettingItemProp) {
               <td className="px-6 py-4 text-gray-800">-</td>
             )}
 
-            {settingsData.difficulty !== 'clincher' ? (
-              <td className="px-6 py-4 text-gray-800">
-                <input
-                  className="px-1 border border-slate-800 rounded-sm w-20"
-                  type="number"
-                  name="partial_points"
-                  value={settingsData.partial_points}
-                  onChange={(e) =>
-                    setSettingsData((prev) => ({ ...prev, partial_points: Number(e.target.value) }))
-                  }
-                />
-              </td>
-            ) : (
-              <td className="px-6 py-4 text-gray-800">-</td>
-            )}
-
             <td className="px-6 py-4 text-gray-800">
               <input
                 className="px-1 border border-slate-800 rounded-sm w-20"
@@ -892,9 +852,6 @@ function SettingItem(props: SettingItemProp) {
           <>
             <td className="px-6 py-4 text-gray-800">
               {settingsData.points ? settingsData.points : '-'}
-            </td>
-            <td className="px-6 py-4 text-gray-800">
-              {settingsData.partial_points ? settingsData.partial_points : '-'}
             </td>
             <td className="px-6 py-4 text-gray-800">{settingsData.time}</td>
             <td className="px-6 py-4 text-gray-800">
